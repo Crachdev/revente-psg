@@ -677,28 +677,30 @@ function sumTable(title,list,keyLabel){
     list.map(function(g){return row(g);}).join('')+row({k:'Total',n:tot.n,brut:tot.brut,fee:tot.fee,net:tot.net},true)+'</tbody></table></div></section>';
 }
 
+var SPLIT='both',SPLIT_LABEL='Les deux (moitié chacun)';
 function sellers(){return users().map(function(u){return u.name;});}
 function r2(n){return Math.round(n*100)/100;}
-function selOpts(sel,blank){var o=blank?'<option value="">— à renseigner —</option>':'';return o+sellers().map(function(n){return '<option value="'+esc(n)+'"'+(n===sel?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
+function selOpts(sel,blank){var o=blank?'<option value="">— à renseigner —</option><option value="'+SPLIT+'"'+(sel===SPLIT?' selected':'')+'>'+SPLIT_LABEL+'</option>':'';return o+sellers().map(function(n){return '<option value="'+esc(n)+'"'+(n===sel?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
 function srcLabel(v){
   if(v.source==='billetterie')return 'Récupérée depuis la billetterie'+(v.edited?' · modifiée à la main par '+v.edited:'')+(v.by?' (importée par '+v.by+')':'');
   return 'Saisie manuelle'+(v.by?' par '+v.by:'');
 }
 function sellerLabel(v){
   if(!v.seller)return 'à renseigner';
+  if(v.seller===SPLIT)return 'les deux : le club verse la moitié à chacun';
   return v.seller+(v.sellerSrc==='billetterie'?' · d’après le titulaire du compte bancaire sur la billetterie':(v.sellerBy?' · saisi par '+v.sellerBy:''));
 }
 function balance(){
   var us=sellers(),enc={},tin={},tout={},pp={};
   us.forEach(function(n){enc[n]=0;tin[n]=0;tout[n]=0;pp[n]=0;});
   var un=0,pend=0,pendN=0;
-  ventes.forEach(function(v){if(enc[v.seller]===undefined){un++;return;}enc[v.seller]+=netOf(v);if(v.reglement==='attente'){pend+=netOf(v);pendN++;pp[v.seller]+=netOf(v);}});
+  ventes.forEach(function(v){if(v.seller===SPLIT&&us.length){var h=netOf(v)/us.length;us.forEach(function(n){enc[n]+=h;if(v.reglement==='attente')pp[n]+=h;});if(v.reglement==='attente'){pend+=netOf(v);pendN++;}return;}if(enc[v.seller]===undefined){un++;return;}enc[v.seller]+=netOf(v);if(v.reglement==='attente'){pend+=netOf(v);pendN++;pp[v.seller]+=netOf(v);}});
   transfers.forEach(function(t){if(tout[t.from]!==undefined)tout[t.from]+=t.amount;if(tin[t.to]!==undefined)tin[t.to]+=t.amount;});
   var tot=us.reduce(function(s,n){return s+enc[n];},0),fair=us.length?tot/us.length:0;
   return {un:un,pend:pend,pendN:pendN,tot:tot,fair:fair,rows:us.map(function(n){return {n:n,enc:enc[n],pend:pp[n],out:tout[n],inn:tin[n],bal:r2(enc[n]-tout[n]+tin[n]-fair)};})};
 }
 function balanceView(){
-  var b=balance(),h='<section class="panel" aria-labelledby="h-bal"><h2 id="h-bal">Qui a vendu, qui doit quoi</h2>';
+  var b=balance(),h='<section class="panel" aria-labelledby="h-bal"><h2 id="h-bal">Qui a reçu, qui doit quoi</h2>';
   var debt=b.rows.filter(function(r){return r.bal>0.005;}),cred=b.rows.filter(function(r){return r.bal<-0.005;});
   var msg;
   if(!ventes.length)msg='Aucune vente pour l’instant.';
@@ -708,9 +710,9 @@ function balanceView(){
   h+='<p class="verdict">'+msg+'</p>';
   if(b.un)h+='<p class="note warn-n">'+b.un+' vente(s) sans vendeur renseigné : elles ne sont pas comptées ici. Choisis le vendeur dans « Détail des ventes ».</p>';
   h+='<p class="note"><b>Total net des reventes : '+eur(b.tot)+'</b> · part de chacun : <b>'+eur(b.fair)+'</b> ('+sellers().length+' personnes).'+(b.pendN?' Dont '+eur(b.pend)+' pas encore versés par le club ('+b.pendN+' vente'+(b.pendN>1?'s':'')+') : ils sont comptés pour celui qui va les recevoir.':'')+'</p>';
-  h+='<div class="tbl"><table><thead><tr><th scope="col">Qui</th><th scope="col">Net vendu</th><th scope="col">Viré</th><th scope="col">Reçu</th><th scope="col">Solde</th></tr></thead><tbody>'+
+  h+='<div class="tbl"><table><thead><tr><th scope="col">Qui</th><th scope="col">Net reçu</th><th scope="col">Viré</th><th scope="col">Reçu</th><th scope="col">Solde</th></tr></thead><tbody>'+
     b.rows.map(function(r){return '<tr><th scope="row">'+esc(r.n)+'</th><td>'+eur(r.enc)+(r.pend>0?'<br><small class="muted">dont '+eur(r.pend)+' à recevoir</small>':'')+'</td><td>'+eur(r.out)+'</td><td>'+eur(r.inn)+'</td><td>'+(r.bal>0.005?'doit '+eur(r.bal):r.bal<-0.005?'reçoit '+eur(-r.bal):'0 €')+'</td></tr>';}).join('')+'</tbody></table></div>';
-  h+='<p class="note">Net vendu = net des ventes dont la personne est le vendeur (c’est elle qui reçoit le virement du club), règlements en attente compris. Solde = net vendu − virements faits + virements reçus − part de chacun. Le solde est donc le montant à virer, qu’un règlement du club soit encore en attente ou non.</p>';
+  h+='<p class="note">Au PSG, le club verse en général la moitié à chaque propriétaire de place : ces ventes (« Les deux ») ne créent aucune dette. Quand le club verse tout à une seule personne, c’est elle qui doit la moitié à l’autre. Net reçu = part du net que la personne a reçue du club, règlements en attente compris. Solde = net reçu − virements faits + virements reçus − part de chacun. Le solde est donc le montant à virer, qu’un règlement du club soit encore en attente ou non.</p>';
   var us=sellers();
   h+='<details class="panel set" data-key="addt"'+(openSet.has('addt')?' open':'')+'><summary><span class="h2">Enregistrer un virement entre nous</span><span class="chev" aria-hidden="true"></span></summary>'+
     '<form id="tr-form" style="display:flex;flex-direction:column;gap:12px"><div class="grid">'+
@@ -897,12 +899,12 @@ function financeView(){
     '<div class="grid"><div class="fld"><label for="v-date">Date de la vente</label><input id="v-date" type="date" value="'+parisToday()+'" required></div>'+
     '<div class="fld"><label for="v-price">Prix de vente de la paire (€)</label><input id="v-price" type="number" inputmode="decimal" step="0.01" min="0" required></div>'+
     '<div class="fld"><label for="v-fee">Commission du club (€)</label><input id="v-fee" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>'+
-    '<div class="fld"><label for="v-seller">Vendu par (a reçu l’argent)</label><select id="v-seller">'+selOpts(who,true)+'</select></div>'+
+    '<div class="fld"><label for="v-seller">Qui a reçu l’argent du club ?</label><select id="v-seller">'+selOpts(SPLIT,true)+'</select></div>'+
     '<div class="fld"><label for="v-note">Note</label><input id="v-note" type="text"></div></div>'+
     '<button type="submit" class="btn">Enregistrer la vente</button></form></details>';
   h+='<details class="panel set" data-key="imp"'+(openSet.has('imp')?' open':'')+'><summary><span class="h2">Importer des ventes</span><span class="chev" aria-hidden="true"></span></summary>'+
     '<p class="note">Colle une vente par ligne : <strong>date;libellé;prix de la paire;commission;n° de lot</strong> (par exemple 2026-09-12;PSG – Lyon;130,00;15,60;1765). Une vente déjà importée (même n° de lot) est ignorée.</p>'+
-    '<div class="fld" style="margin-top:12px"><label for="imp-seller">Vendeur des ventes importées</label><select id="imp-seller">'+selOpts(who,true)+'</select></div>'+
+    '<div class="fld" style="margin-top:12px"><label for="imp-seller">Qui a reçu l’argent (ventes importées)</label><select id="imp-seller">'+selOpts(SPLIT,true)+'</select></div>'+
     '<div class="fld" style="margin-top:12px"><label for="imp-text">Lignes à importer</label><textarea id="imp-text" rows="6" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:14px var(--f-body)"></textarea></div>'+
     '<button type="button" class="btn" data-act="import" style="margin-top:12px">Importer</button></details>';
   h+=sumTable('Par saison',groupBy(list,seasonOfSale),'Saison')+sumTable('Par année fiscale',groupBy(list,function(v){return fiscalOf(v.date);}),'Année');
@@ -912,10 +914,10 @@ function financeView(){
       var vl=v.source==='billetterie';
       return '<details class="vrow'+(vl?' vlocked':'')+'" data-key="vd-'+esc(v.id)+'"'+(openSet.has('vd-'+v.id)?' open':'')+'><summary class="vsum"><div class="vhead"><b>'+(vl?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span> ':'')+esc(labelFmt(v.label)||'Vente')+'</b><span class="muted">'+esc(seasonOfSale(v))+' · net '+eur(netOf(v))+'</span>'+
         '<span class="src '+(v.source==='billetterie'?'bil':'man')+'">'+esc(srcLabel(v))+'</span>'+
-        '<span class="muted">Vendu par (a reçu le virement) : <b>'+esc(sellerLabel(v))+'</b></span>'+
+        '<span class="muted">Argent reçu par : <b>'+esc(sellerLabel(v))+'</b></span>'+
         '<span class="src '+(v.reglement==='attente'?'man':'bil')+'">'+(v.reglement==='attente'?'Règlement du club en attente':'Règlement versé')+'</span></div><span class="chev" aria-hidden="true"></span></summary>'+
         '<div class="grid">'+f('Date','date',v.date,'date')+f('Prix (€)','price',v.price,'number')+f('Commission (€)','fee',v.fee,'number')+f('Libellé','label',v.label,'text')+
-          '<div class="fld"><label for="vf-seller-'+esc(v.id)+'">Vendu par</label><select id="vf-seller-'+esc(v.id)+'"'+(lockedVente(v,'seller')?' disabled':'')+' data-vf="seller" data-vid="'+esc(v.id)+'">'+selOpts(v.seller,true)+'</select></div>'+
+          '<div class="fld"><label for="vf-seller-'+esc(v.id)+'">Argent reçu par</label><select id="vf-seller-'+esc(v.id)+'"'+(lockedVente(v,'seller')?' disabled':'')+' data-vf="seller" data-vid="'+esc(v.id)+'">'+selOpts(v.seller,true)+'</select></div>'+
           '<div class="fld"><label for="vf-reglement-'+esc(v.id)+'">Règlement du club</label><select id="vf-reglement-'+esc(v.id)+'" data-vf="reglement" data-vid="'+esc(v.id)+'"><option value="verse"'+(v.reglement!=='attente'?' selected':'')+'>Versé</option><option value="attente"'+(v.reglement==='attente'?' selected':'')+'>En attente</option></select></div></div>'+
         (vl?'<p class="note">Verrouillé : montants et vendeur récupérés depuis la billetterie. Seul le statut du règlement reste modifiable.</p>':'<button type="button" class="btn ghost small" data-act="delvente" data-id="'+esc(v.id)+'">Supprimer cette vente</button>')+'</details>';
     }).join('')+'</div></section>';
@@ -947,7 +949,7 @@ async function saveVente(rec){
   catch(e){if(isAuthError(e)){await logout();return;}toast('Enregistrement impossible : '+(e.message||e.code));await refresh();}
 }
 function newSale(d){
-  var rec={id:'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),date:d.date,label:d.label||'',matchId:d.matchId||autoMatchId(d.date,d.label)||null,price:num(d.price)||0,fee:num(d.fee)||0,note:d.note||'',by:who,seller:d.seller===undefined?who:d.seller,sellerSrc:'manuel',sellerBy:who,reglement:'verse',source:d.source||'manuel'};
+  var rec={id:'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),date:d.date,label:d.label||'',matchId:d.matchId||autoMatchId(d.date,d.label)||null,price:num(d.price)||0,fee:num(d.fee)||0,note:d.note||'',by:who,seller:d.seller===undefined?SPLIT:d.seller,sellerSrc:'manuel',sellerBy:who,reglement:'verse',source:d.source||'manuel'};
   return saveVente(rec);
 }
 function ensureSale(m){
@@ -965,7 +967,7 @@ function exportXlsx(){
   var X=window.XLSX,list=sortedVentes().slice().reverse();
   var EUR='#,##0.00 "€"';
   var ws={},n=list.length,last=n+1;
-  var head=['Date','Match','Saison','Année fiscale','Prix de vente (paire)','Commission','Net perçu','Par personne','Saisi par','Note','Vendu par (a encaissé)','Origine','Origine du vendeur','Règlement du club'];
+  var head=['Date','Match','Saison','Année fiscale','Prix de vente (paire)','Commission','Net perçu','Par personne','Saisi par','Note','Argent reçu par','Origine','Origine du vendeur','Règlement du club'];
   head.forEach(function(h,c){ws[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
   list.forEach(function(v,i){
     var r=i+1,R=r+1,d=new Date(v.date+'T00:00:00Z');
@@ -973,7 +975,7 @@ function exportXlsx(){
     put(0,{t:'d',v:d,z:'dd/mm/yyyy'});put(1,{t:'s',v:labelFmt(v.label)});put(2,{t:'s',v:seasonOfSale(v)});put(3,{t:'s',v:fiscalOf(v.date)});
     put(4,{t:'n',v:v.price,z:EUR});put(5,{t:'n',v:v.fee,z:EUR});
     put(6,{t:'n',v:netOf(v),f:'E'+R+'-F'+R,z:EUR});put(7,{t:'n',v:netOf(v)/2,f:'G'+R+'/2',z:EUR});
-    put(8,{t:'s',v:v.by||''});put(9,{t:'s',v:v.note||''});put(10,{t:'s',v:v.seller||''});put(12,{t:'s',v:v.sellerSrc==='billetterie'?'Billetterie (titulaire du compte bancaire)':('Saisi à la main'+(v.sellerBy?' par '+v.sellerBy:''))});put(13,{t:'s',v:v.reglement==='attente'?'En attente':'Versé'});put(11,{t:'s',v:v.source==='billetterie'?'Billetterie'+(v.edited?' (modifiée par '+v.edited+')':''):'Saisie manuelle'});
+    put(8,{t:'s',v:v.by||''});put(9,{t:'s',v:v.note||''});put(10,{t:'s',v:v.seller===SPLIT?SPLIT_LABEL:(v.seller||'')});put(12,{t:'s',v:v.sellerSrc==='billetterie'?'Billetterie (titulaire du compte bancaire)':('Saisi à la main'+(v.sellerBy?' par '+v.sellerBy:''))});put(13,{t:'s',v:v.reglement==='attente'?'En attente':'Versé'});put(11,{t:'s',v:v.source==='billetterie'?'Billetterie'+(v.edited?' (modifiée par '+v.edited+')':''):'Saisie manuelle'});
   });
   var tr=n+1,TR=tr+1,tot={p:0,f:0,n:0};list.forEach(function(v){tot.p+=v.price;tot.f+=v.fee;tot.n+=netOf(v);});
   if(n){
@@ -1015,12 +1017,12 @@ function exportXlsx(){
     var tv={};['Date','De','Vers','Montant','Note','Saisi par'].forEach(function(h,c){tv[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
     tl.forEach(function(t,i){var r=i+1;tv[X.utils.encode_cell({r:r,c:0})]={t:'d',v:new Date(t.date+'T00:00:00Z'),z:'dd/mm/yyyy'};tv[X.utils.encode_cell({r:r,c:1})]={t:'s',v:t.from};tv[X.utils.encode_cell({r:r,c:2})]={t:'s',v:t.to};tv[X.utils.encode_cell({r:r,c:3})]={t:'n',v:t.amount,z:EUR};tv[X.utils.encode_cell({r:r,c:4})]={t:'s',v:t.note||''};tv[X.utils.encode_cell({r:r,c:5})]={t:'s',v:t.by||''};});
     tv['!ref']='A1:F'+(tn?tn+1:1);tv['!cols']=[{wch:12},{wch:12},{wch:12},{wch:13},{wch:30},{wch:12}];
-    var dc={};['Personne','Net vendu','Dont règlement en attente','Part de chacun','Virements faits','Virements reçus','Solde (positif = doit)'].forEach(function(h,c){dc[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+    var dc={};['Personne','Net reçu','Dont règlement en attente','Part de chacun','Virements faits','Virements reçus','Solde (positif = doit)'].forEach(function(h,c){dc[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
     var vr=function(L){return 'Ventes!$'+L+'$2:$'+L+'$'+Math.max(last,2);},tr_=function(L){return 'Virements!$'+L+'$2:$'+L+'$'+tlast;};
     b.rows.forEach(function(r,i){var R=i+2;function p(c,cell){dc[X.utils.encode_cell({r:i+1,c:c})]=cell;}
       p(0,{t:'s',v:r.n});
-      p(1,{t:'n',v:r.enc,f:'SUMIF('+vr('K')+',A'+R+','+vr('G')+')',z:EUR});
-      p(2,{t:'n',v:r.pend,f:'SUMIFS('+vr('G')+','+vr('K')+',A'+R+','+vr('N')+',"En attente")',z:EUR});
+      p(1,{t:'n',v:r.enc,f:'SUMIF('+vr('K')+',A'+R+','+vr('G')+')+SUMIF('+vr('K')+',"'+SPLIT_LABEL+'",'+vr('G')+')/'+ub,z:EUR});
+      p(2,{t:'n',v:r.pend,f:'SUMIFS('+vr('G')+','+vr('K')+',A'+R+','+vr('N')+',"En attente")+SUMIFS('+vr('G')+','+vr('K')+',"'+SPLIT_LABEL+'",'+vr('N')+',"En attente")/'+ub,z:EUR});
       p(3,{t:'n',v:b.fair,f:'SUM($B$2:$B$'+(ub+1)+')/'+ub,z:EUR});
       p(4,{t:'n',v:r.out,f:'SUMIF('+tr_('B')+',A'+R+','+tr_('D')+')',z:EUR});
       p(5,{t:'n',v:r.inn,f:'SUMIF('+tr_('C')+',A'+R+','+tr_('D')+')',z:EUR});
@@ -1087,7 +1089,7 @@ async function reload(){
   var vd=await vref().get();var vm=(vd.exists&&vd.data().v)||{};
   ventes=Object.keys(vm).map(function(k){var r=vm[k];r.id=k;r.price=num(r.price)||0;r.fee=num(r.fee)||0;
     if(!r.source)r.source=/^vlot/.test(k)?'billetterie':'manuel';
-    if(r.seller===undefined)r.seller='';
+    if(r.seller===undefined)r.seller=SPLIT;
     if(!r.sellerSrc)r.sellerSrc=r.seller&&/^vlot/.test(k)?'billetterie':'manuel';
     if(!r.reglement)r.reglement='verse';
     return r;});

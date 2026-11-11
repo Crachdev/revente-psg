@@ -19,6 +19,7 @@ L'ouverture d'une revente est notée à la main dans l'appli (un clic) : elle ne
 
 - Net d'une vente = prix de la paire − commission du club (12 % chez le PSG : laisser le champ commission vide dans « Vendue ? » applique ce taux, réglable dans `config.js`).
 - « Par personne » = total net ÷ 2 (vous êtes deux).
+- **Qui reçoit l'argent :** au PSG, le club verse en général la moitié à chaque propriétaire de place (réglage « Les deux », par défaut) : aucune dette entre vous. Si le club verse tout à une seule personne, on choisit son nom sur la vente et elle doit la moitié à l'autre (onglet Finances).
 - Saison du 1er août au 31 juillet ; une vente compte dans la saison de **son match**. Année fiscale = année civile de la date de la vente.
 - Une vente est liée à son match par `matchId`.
 
