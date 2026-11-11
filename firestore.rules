@@ -1,26 +1,17 @@
 rules_version = '2';
-
-// Copie de référence : à coller dans Firebase > Firestore Database > Règles > Publier.
-// Remplacer EMAIL_1 et EMAIL_2 par les deux adresses de connexion (à ne PAS écrire dans le dépôt public).
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Revente PSG : uniquement Rachid et Sylvain.
     function autorise() {
       return request.auth != null
-        && request.auth.token.email in ['EMAIL_1', 'EMAIL_2'];
+        && request.auth.token.email in [
+          'rachid@psg-revente.fr',
+          'sylvain@psg-revente.fr'
+        ];
     }
 
-    match /psg_matches/{id} {
-      allow read, write: if autorise();
-    }
-
-    match /psg_config/{id} {
-      allow read, write: if autorise();
-    }
-
-    // Tout le reste est interdit.
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    match /revente_matches/{doc} { allow read, write: if autorise(); }
+    match /revente_config/{doc}  { allow read, write: if autorise(); }
   }
 }

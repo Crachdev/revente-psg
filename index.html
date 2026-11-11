@@ -2,482 +2,1474 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b3a82">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Revente PSG">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>try{var _t=localStorage.getItem("psg-theme");if(_t==="dark"){document.documentElement.setAttribute("data-theme","dark");var _mt=document.querySelector('meta[name="theme-color"]');if(_mt)_mt.content="#0a111e";}}catch(e){}</script>
 <title>Revente PSG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-:root{--bleu:#0a2a4a;--rouge:#c8102e;--gris:#f2f4f7;--texte:#1b2430;--ok:#1a7f4b;--bord:#d5dbe3}
+/* Concept: feuille de match en une colonne. Un bouton d'action en haut, la liste des actions du jour, puis un billet par match (talon pointillé à gauche, prix à droite). */
+:root{
+  --bg:#ffffff; --surface:rgba(226,236,253,.88); --surface-2:rgba(207,221,248,.9); --ink:#0d1a2d; --muted:#556579; --line:#aec3ee;
+  --accent:#0b3a82; --accent-ink:#ffffff; --accent-soft:#c9d9fa;
+  --good:#17784a; --good-soft:#dff2e8; --warn:#8f5400; --warn-soft:#fcefd0; --crit:#b3261e; --crit-soft:#fbe3e0;
+  --wm:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI5NSIgdmlld0JveD0iMCAwIDgwIDk1Ij48cGF0aCBmaWxsPSIjMGIzYTgyIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMCAxMGg2MGE2IDYgMCAwIDEgNiA2djIyYTkgOSAwIDAgMCAwIDE5djIyYTYgNiAwIDAgMS02IDZIMTBhNiA2IDAgMCAxLTYtNlY1N2E5IDkgMCAwIDAgMC0xOVYxNmE2IDYgMCAwIDEgNi02ek0xNiAyMmg0OHY5SDE2ek0xNiAzOGgzMHY2SDE2ek0xNiA1MGgzOHY2SDE2ek0xNiA2MmgyNnY2SDE2eiIvPjwvc3ZnPg==");
+  --f-display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#0a111e; --surface:#121b2c; --surface-2:#1a2538; --ink:#e6edf8; --muted:#93a4bb; --line:#26334a;
+  --accent:#7aa0ff; --accent-ink:#0a111e; --accent-soft:#1a2a4d;
+  --good:#5fd09a; --good-soft:#12301f; --warn:#f0b95a; --warn-soft:#35280e; --crit:#ff8d85; --crit-soft:#3a1714;
+  --wm:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI5NSIgdmlld0JveD0iMCAwIDgwIDk1Ij48cGF0aCBmaWxsPSIjN2FhMGZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xMCAxMGg2MGE2IDYgMCAwIDEgNiA2djIyYTkgOSAwIDAgMCAwIDE5djIyYTYgNiAwIDAgMS02IDZIMTBhNiA2IDAgMCAxLTYtNlY1N2E5IDkgMCAwIDAgMC0xOVYxNmE2IDYgMCAwIDEgNi02ek0xNiAyMmg0OHY5SDE2ek0xNiAzOGgzMHY2SDE2ek0xNiA1MGgzOHY2SDE2ek0xNiA2MmgyNnY2SDE2eiIvPjwvc3ZnPg=="); --wmo:.06;
+  color-scheme:dark;
+}
+.hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.hd>div{min-width:0}
+.sw{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 4px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font:600 12px var(--f-body);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.swl{min-width:46px;text-align:right}
+.sw i{display:block;width:34px;height:20px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);position:relative}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .15s}
+.sw[aria-checked="true"] i{background:var(--accent)}
+.sw[aria-checked="true"] i::after{transform:translateX(14px);background:var(--accent-ink)}
 *{box-sizing:border-box}
-body{margin:0;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--texte);background:var(--gris)}
-header{background:var(--bleu);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-header h1{font-size:18px;margin:0}
-header .qui{font-size:13px;opacity:.85}
-nav{display:flex;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:2}
-nav button{flex:1;padding:12px 6px;border:0;background:none;font:inherit;border-bottom:3px solid transparent;cursor:pointer}
-nav button.on{border-bottom-color:var(--rouge);font-weight:600}
-main{max-width:820px;margin:0 auto;padding:12px}
-.card{background:#fff;border:1px solid var(--bord);border-radius:10px;padding:12px;margin:10px 0}
-.row{display:flex;gap:10px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:6px 0}
-.row>label{flex:1;min-width:140px}
-label{display:block;font-size:13px;color:#4a5668}
-input,select{width:100%;padding:9px;border:1px solid var(--bord);border-radius:8px;font:inherit;background:#fff}
-button{padding:9px 14px;border:1px solid var(--bleu);border-radius:8px;background:var(--bleu);color:#fff;font:inherit;cursor:pointer}
-button.sec{background:#fff;color:var(--bleu)}
-button.danger{background:#fff;color:var(--rouge);border-color:var(--rouge)}
-.muted{color:#5d6b7e;font-size:14px}
-.hint{background:#eef6ff;border-radius:8px;padding:6px 10px;margin:6px 0;font-size:14px}
-.err{color:var(--rouge);margin:8px 0}
-.ok{color:var(--ok)}
-.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:#e8edf3}
-.pill.verse{background:#dcf3e6;color:var(--ok)}
-.pill.attente{background:#fff0d6;color:#8a5a00}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:6px 4px;border-bottom:1px solid var(--bord);text-align:left;vertical-align:middle}
-td.n,th.n{text-align:right;white-space:nowrap}
-.scroll{overflow-x:auto}
-h2{font-size:17px;margin:16px 0 6px}
-.login{max-width:360px;margin:40px auto}
+body{margin:0;background:var(--bg);position:relative;color:var(--ink);font:15px/1.45 var(--f-body);-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--wm) center 55%/min(78vw,430px) no-repeat;opacity:var(--wmo,.1)}
+.wrap{position:relative;z-index:1}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,.h2{font-family:var(--f-display);margin:0;text-wrap:balance;text-transform:uppercase}
+h1{font-size:36px;line-height:1;font-weight:700;letter-spacing:.01em}
+h2,.h2{font-size:22px;line-height:1.1;font-weight:600;letter-spacing:.03em}
+p{margin:0}
+.sub{color:var(--muted);margin-top:6px}
+.muted{color:var(--muted)}
+a{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel>.sub{margin-top:0}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;padding:0 18px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 16px/1.2 var(--f-body);text-decoration:none;cursor:pointer;text-align:center}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);min-height:44px;font-size:15px}
+.btn.small{min-height:38px;padding:0 12px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.links{font-size:14px;color:var(--muted)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.todo-item{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start;width:100%;padding:12px 0;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.list li:first-child .todo-item{border-top:0;padding-top:4px}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;text-align:center;justify-self:start}
+.tag.crit{background:var(--crit-soft);color:var(--crit)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.accent{background:var(--accent-soft);color:var(--accent)}
+.tag.neutral{background:var(--surface-2);color:var(--muted)}
+.fixtures{display:flex;flex-direction:column;gap:10px}
+details.fx,div.fx{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+details.fx>summary,div.fx>.sum{list-style:none;display:grid;grid-template-columns:64px minmax(0,1fr) auto 30px;cursor:pointer;align-items:stretch}
+details.fx>summary::-webkit-details-marker{display:none}
+.stub{border-right:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 0;font-family:var(--f-display)}
+.stub b{font-size:32px;line-height:1;font-weight:700}
+.stub i{font-style:normal;text-transform:uppercase;font-size:13px;letter-spacing:.08em;color:var(--muted)}
+.main{padding:12px;min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center}
+.clogo{width:26px;height:26px;object-fit:contain;flex:none}
+.opp{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-size:24px;line-height:1.05;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.meta{font-size:13px;color:var(--muted)}
+.j{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.side{padding:12px 0 12px 4px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;text-align:right}
+.px{font-family:var(--f-display);font-size:26px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.cap{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chev{align-self:center;justify-self:center;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-top:-3px}
+details[open]>summary .chev{transform:rotate(225deg);margin-top:3px}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.s-ouverte{background:var(--accent);color:var(--accent-ink)}
+.pill.s-enligne{background:var(--warn-soft);color:var(--warn)}
+.pill.s-vendue{background:var(--good-soft);color:var(--good)}
+.body{padding:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:16px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg-b{min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:500 14px var(--f-body);cursor:pointer}
+.seg-b[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.plan{display:flex;flex-direction:column;gap:10px;background:var(--surface-2);border-radius:10px;padding:12px}
+.now{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.big{font-family:var(--f-display);font-size:38px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.tiers{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tiers li{padding:8px 4px;border:1px solid var(--line);border-radius:8px;text-align:center;background:var(--surface)}
+.tiers li.cur{border-color:var(--accent);background:var(--accent-soft)}
+.tiers span{display:block;font-size:12px;color:var(--muted)}
+.tiers b{display:block;font-family:var(--f-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld label{font-size:13px;color:var(--muted)}
+.fld small{font-size:12px;color:var(--muted)}
+.fld input{width:100%;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:16px var(--f-body);font-variant-numeric:tabular-nums}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+details.set>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+details.set>summary::-webkit-details-marker{display:none}
+details.set[open]>summary{margin-bottom:12px}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+.note{font-size:13px;color:var(--muted)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 32px);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;z-index:20}
+#toast[hidden]{display:none}
+@media (max-width:420px){
+  h1{font-size:30px}
+  .todo-item{grid-template-columns:1fr;gap:4px}
+  .tiers b{font-size:18px}
+  details.fx>summary,div.fx>.sum{grid-template-columns:56px minmax(0,1fr) auto 24px}
+}
+</style>
+<style>
+/* ── Bandeau hors-ligne ── */
+#offlineBanner{position:fixed;top:0;left:0;right:0;z-index:40;display:none;align-items:center;justify-content:center;gap:8px;padding:8px 16px;background:#1a2538;color:#93a4bb;font:600 13px var(--f-body);letter-spacing:.02em;border-bottom:1px solid #26334a;text-align:center}
+#offlineBanner.visible{display:flex}
+#offlineBanner svg{flex:none;opacity:.8}
+/* ── PWA install ── */
+#pwaInstall{display:none;align-items:center;gap:10px;min-height:48px;padding:0 18px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 15px var(--f-body);cursor:pointer;width:100%;justify-content:center}
+#pwaInstall.visible{display:flex}
+#iosHint{display:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.5;text-align:center}
+#iosHint.visible{display:block}
+#iosHint strong{color:var(--ink);font-weight:600}
+.qs{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line,rgba(128,128,128,.3));padding-top:12px}.qs .h3{font-weight:600}
+</style>
+<style>
+header{display:block}
+.msg-err{color:var(--crit);font-weight:600}
+button.link{background:none;border:0;padding:0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer}
+form.panel .btn{width:100%}
+.fld input[type=text],.fld input[type=password]{min-height:48px}
+.tabs{display:flex;gap:6px}
+.vbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px}
+.tab{flex:1;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:600 15px var(--f-body);cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpis>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpis .big{font-size:28px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13px}
+th,td{padding:7px 3px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:11px;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+tr.tot th,tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+.vlist{display:flex;flex-direction:column;gap:14px}
+.vrow{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.vrow:first-child{border-top:0;padding-top:0}
+.roih{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.roip{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.roip .big{font-size:44px}
+.roip .big.ok{color:var(--good)}
+.bar{display:block;height:14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:999px;min-width:2px}
+.bar>i.ok{background:var(--good)}
+.rchart{width:100%;height:auto;max-height:240px;display:block}
+.rchart .g{stroke:var(--line);stroke-width:1}
+.rchart .yl{fill:var(--muted);font:10px var(--f-body);text-anchor:middle}
+.rchart .ln{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round}
+.rchart .ar{fill:var(--accent);opacity:.14}
+.rchart .cost{stroke:var(--crit);stroke-width:1.5;stroke-dasharray:5 4}
+.rchart .cl{fill:var(--crit);font:600 10px var(--f-body)}
+.rchart .dt{fill:var(--accent);stroke:var(--bg);stroke-width:1.5}
+.rchart .be{fill:none;stroke:var(--good);stroke-width:2.5}
+.cmp{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.cmp li{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) 3.2em;gap:10px;align-items:center}
+.cmp b{text-align:right;font-variant-numeric:tabular-nums}
+.cmpl{font-size:13px;color:var(--muted)}
+.verdict{font-size:18px;line-height:1.3}
+.warn-n{color:var(--warn)}
+.src{display:inline-block;align-self:flex-start;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+.src.bil{background:var(--accent-soft);color:var(--accent)}
+.src.man{background:var(--warn-soft);color:var(--warn)}
+.vrow>.grid,.vrow>.note,.vrow>.btn{margin-top:10px}
+details.vrow>summary.vsum{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:8px;cursor:pointer;align-items:center}
+details.vrow>summary.vsum::-webkit-details-marker{display:none}
+details.vrow[open]>summary .chev{transform:rotate(225deg);margin-top:3px}
+.vhead{display:flex;flex-direction:column;gap:2px}
+.fld select{width:100%;min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:16px var(--f-body)}
+.fld input[type=date]{min-width:0}
+@media (max-width:420px){.kpis .big{font-size:22px}}
+details.fx.past,div.fx.past{opacity:.6}
+div.fx>.sum{cursor:default}
+.fx .lock{align-self:center;justify-self:center;color:var(--muted);display:flex}
+.lockic{display:inline-flex;vertical-align:-3px;margin-right:4px;color:inherit}
+.lockic svg{width:14px;height:14px}
+.vlocked input:disabled,.vlocked select:disabled,.fx input:disabled{opacity:.7;cursor:not-allowed}
+details.fx.past[open]{opacity:1}
+.pill.s-pretee{background:var(--accent-soft);color:var(--accent)}
+.pill.s-nonvendue{background:var(--crit-soft);color:var(--crit)}
 </style>
 </head>
 <body>
-<div id="app"><p style="padding:20px">Chargement…</p></div>
-
+<div id="app" class="wrap" aria-live="polite"></div>
+<div id="toast" role="status" hidden></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+<script>// Configuration Firebase (projet revente-psg). Ces valeurs sont publiques par conception :
+// la protection vient des comptes (mot de passe) et des règles Firestore.
+window.PSG_CONFIG = {
+  FIREBASE: {
+    apiKey: "AIzaSyDi01h-M_Gs8ir4eAV694GPExCVSVpGjqE",
+    authDomain: "revente-psg.firebaseapp.com",
+    projectId: "revente-psg",
+    storageBucket: "revente-psg.firebasestorage.app",
+    messagingSenderId: "1021107889469",
+    appId: "1:1021107889469:web:1edc868b5d88ed2e795154"
+  },
+  // Un compte par personne, créé dans Firebase Authentication (même e-mail, un mot de passe différent chacun).
+  USERS: [
+    { name: "Rachid",  email: "rachid@psg-revente.fr" },
+    { name: "Sylvain", email: "sylvain@psg-revente.fr" }
+  ],
+  // Commission du club sur une revente, en % (sert à pré-remplir quand on laisse le champ vide).
+  COMMISSION: 12
+};
+</script>
 <script>
-(function () {
+
+(function(){
 'use strict';
+var CFGX=window.PSG_CONFIG||{};
+var RATE=(Number(CFGX.COMMISSION)||0)/100;
+var URL_OPEN='https://billetterie.psg.fr/fr/';
+var URL_ALL='https://billetterie.psg.fr/fr/';
+var URL_PLAT='https://billetterie.psg.fr/fr/account/sales';
+var DEF={basePrice:null,markup:0,drop7:10,drop3:20,floorPct:50,watchFrom:21,lastCheck:null,lastCheckBy:null};
+var STATUS=[['attente','Pas encore ouverte'],['ouverte','Ouverte, à poster'],['enligne','En vente'],['vendue','Vendue'],['pretee','Prêtée'],['nonvendue','Non vendue'],['gardee','Je garde']];
+var STATUS_LABEL={};STATUS.forEach(function(s){STATUS_LABEL[s[0]]=s[1];});
 
-/* ---------- Constantes et utilitaires ---------- */
-var CFG = window.APP_CONFIG;
-var STATUTS = {
-  pas_ouverte: 'Pas encore ouverte',
-  ouverte: 'Ouverte à poster',
-  en_vente: 'En vente',
-  vendue: 'Vendue',
-  prete: 'Prêtée',
-  non_vendue: 'Non vendue',
-  gardee: 'Gardée'
-};
-var REGLEMENT = { attente: 'En attente', verse: 'Versé' };
-var GRILLE_DEFAUT = { j7: 0.10, j3: 0.20, j1: 0.30 };
+var db=null, auth=null, unsubs=[], cfg=Object.assign({},DEF), matches=[], openSet=new Set(), ventes=[], transfers=[], abos=[], tab='matchs', fullView=(function(){try{return localStorage.getItem('psg-view')==='full';}catch(_){return false;}})();
+var state='boot', loginErr='', errMsg='', who=null;
+var toastTimer=null, pending=false, pollTimer=null, debounce=null;
+var app=document.getElementById('app');
 
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+/* ---------- utilitaires ---------- */
+function users(){return (CFGX.USERS||[]).filter(function(u){return u&&u.name&&u.email;});}
+var selUser='', pwMsg=null, rst=null, pushMsg=null, syncErr=false;
+function lastUser(){if(selUser)return selUser;try{return localStorage.getItem('psg_last_user')||'';}catch(e){return '';}}
+function whoFromEmail(em){
+  var m=users().filter(function(u){return u.email.toLowerCase()===String(em||'').toLowerCase();})[0];
+  return m?m.name:(em||'?');
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function num(v){if(v===null||v===undefined||v==='')return null;var n=Number(String(v).replace(',','.'));return isFinite(n)?n:null;}
+function N(v){return Number(v)||0;}
+function nz(v,d){var n=num(v);return n==null?d:n;}
+function eur(n){if(n==null)return '—';return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2}).format(n);}
+function parseD(s){var p=String(s).split('-').map(Number);return Date.UTC(p[0],p[1]-1,p[2]);}
+function daysBetween(a,b){return Math.round((parseD(b)-parseD(a))/86400000);}
+function parisToday(){
+  var parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  function g(t){return parts.filter(function(x){return x.type===t;})[0].value;}
+  return g('year')+'-'+g('month')+'-'+g('day');
+}
+function monShort(d){return new Intl.DateTimeFormat('fr-FR',{month:'short',timeZone:'UTC'}).format(d).replace('.','');}
+function stubParts(m){var d=new Date(parseD(m.date));return {day:d.getUTCDate(),mon:monShort(d)};}
+function whenLabel(m){
+  var d=new Date(parseD(m.date));
+  if(m.weekend){return 'Week-end du '+d.getUTCDate()+' '+monShort(d)+' · horaire à venir';}
+  var wd=new Intl.DateTimeFormat('fr-FR',{weekday:'long',timeZone:'UTC'}).format(d);
+  return wd+(m.time?' '+String(m.time).replace(':','h'):'')+(m.comp?' · '+m.comp:'');
+}
+function labelFmt(l){return String(l||'').replace(/\(J(\d+)\)/g,'(journée $1)');}
+function jLabel(J){return J<0?'il y a '+(-J)+' j':(J===0?'Jour J':'J-'+J);}
+function ago(iso){
+  var t=new Date(iso).getTime();if(isNaN(t))return '';
+  var s=Math.max(0,Math.round((Date.now()-t)/1000));
+  if(s<90)return 'à l’instant';
+  var m=Math.round(s/60);if(m<60)return 'il y a '+m+' min';
+  var h=Math.round(m/60);if(h<24)return 'il y a '+h+' h';
+  return 'il y a '+Math.round(h/24)+' j';
+}
+function find(id){return matches.filter(function(x){return x.id===id;})[0];}
+
+/* ---------- grille de prix : ouverture, puis J-7, J-3, J-1 (plancher) ---------- */
+function plan(m,J){
+  var base=num(m.paid); if(base==null) base=num(cfg.basePrice);
+  if(base==null) return null;
+  var floorV=num(m.floor); if(floorV==null) floorV=Math.round(base*N(cfg.floorPct)/100);
+  var openP=Math.round(base*(1+N(cfg.markup)/100));
+  function at(j){
+    var p;
+    if(j<=1)p=floorV; else if(j<=3)p=openP*(1-N(cfg.drop3)/100); else if(j<=7)p=openP*(1-N(cfg.drop7)/100); else p=openP;
+    return Math.max(floorV,Math.round(p));
+  }
+  var next=null,steps=[7,3,1];
+  for(var i=0;i<steps.length;i++){if(steps[i]<J){next={t:steps[i],inDays:J-steps[i],price:at(steps[i])};break;}}
+  return {now:at(J),next:next,tiers:[
+    {k:'Ouverture',cur:J>7,price:at(99)},{k:'J-7',cur:J<=7&&J>3,price:at(7)},
+    {k:'J-3',cur:J<=3&&J>1,price:at(3)},{k:'J-1',cur:J<=1,price:at(1)}]};
+}
+
+function buildTodo(rows){
+  var items=[];
+  rows.forEach(function(r){
+    var m=r.m,J=r.J,p=r.p;
+    if(m.status==='vendue'||m.status==='gardee')return;
+    if(m.status==='ouverte'){
+      items.push({pr:0,tag:'À poster',cls:'crit',id:m.id,J:J,text:m.opp+' : la revente est ouverte. '+(p?'Mets la paire en vente à '+eur(p.now)+'.':'Renseigne un prix de base pour voir le prix conseillé.')});
+    }else if(m.status==='enligne'){
+      var L=num(m.listed);
+      if(p&&L!=null&&p.now<L)items.push({pr:1,tag:'Baisser',cls:'warn',id:m.id,J:J,text:m.opp+' : passe de '+eur(L)+' à '+eur(p.now)+' ('+jLabel(J)+').'});
+      else if(p&&L==null)items.push({pr:3,tag:'Noter',cls:'neutral',id:m.id,J:J,text:m.opp+' : note le prix affiché pour suivre les baisses.'});
+    }else if(m.status==='attente'&&J<=N(cfg.watchFrom)){
+      items.push({pr:2,tag:'Surveiller',cls:'accent',id:m.id,J:J,text:m.opp+' : revente pas encore vue ('+jLabel(J)+').'});
+    }
   });
-}
-function r2(n) { return Math.round(n * 100) / 100; }
-function num(v) { var n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; }
-function eur(n) { return (n || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }); }
-function slug(s) {
-  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
-function saisonDe(d) {
-  var x = new Date(d), y = x.getFullYear(), m = x.getMonth() + 1;
-  return m >= CFG.saisonDebutMois ? y + '-' + (y + 1) : (y - 1) + '-' + y;
-}
-function joursAvant(d) {
-  var t = new Date(); t.setHours(0, 0, 0, 0);
-  var x = new Date(d); x.setHours(0, 0, 0, 0);
-  return Math.round((x - t) / 86400000);
-}
-function fmtDate(d) {
-  if (!d) return '';
-  var x = new Date(d);
-  var s = x.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  if (String(d).length > 10) s += ' ' + x.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  return s;
-}
-function opts(map, cur) {
-  return Object.keys(map).map(function (k) {
-    return '<option value="' + esc(k) + '"' + (k === cur ? ' selected' : '') + '>' + esc(map[k]) + '</option>';
-  }).join('');
-}
-function $(id) { return document.getElementById(id); }
-
-/* ---------- État ---------- */
-var S = {
-  user: null, main: undefined, matches: [], ventes: { v: [], t: [] }, abos: {},
-  tab: 'matchs', saison: null, passes: false, form: null, erreur: '', info: ''
-};
-var subs = [];
-var pending = false;
-
-/* ---------- Firebase ---------- */
-firebase.initializeApp(CFG.firebase);
-var auth = firebase.auth();
-var db = firebase.firestore();
-db.enablePersistence({ synchronizeTabs: true }).catch(function () {});
-
-function unsubAll() { subs.forEach(function (u) { u(); }); subs = []; }
-function surErreur(e) { S.erreur = 'Erreur : ' + (e && e.message ? e.message : e); render(true); }
-
-function ecouter() {
-  subs.push(db.collection('revente_matches').onSnapshot(function (q) {
-    S.matches = q.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; });
-    render();
-  }, surErreur));
-  subs.push(db.doc('revente_config/main').onSnapshot(function (d) {
-    S.main = d.exists ? d.data() : null; render();
-  }, surErreur));
-  subs.push(db.doc('revente_config/ventes').onSnapshot(function (d) {
-    var x = d.exists ? d.data() : {};
-    S.ventes = { v: x.v || [], t: x.t || [] }; render();
-  }, surErreur));
-  subs.push(db.doc('revente_config/abonnements').onSnapshot(function (d) {
-    S.abos = d.exists ? d.data() : {}; render();
-  }, surErreur));
+  items.sort(function(a,b){return a.pr-b.pr||a.J-b.J;});
+  return items.slice(0,6);
 }
 
-auth.onAuthStateChanged(function (u) {
-  S.user = u; S.main = undefined; unsubAll();
-  if (u) ecouter();
-  render(true);
-});
+/* ---------- verrous ---------- */
+var LOCK_SVG='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+function isSaleOf(v,m){return v.matchId?v.matchId===m.id:v.date===m.date;}
+function autoMatchId(date,label){var c=matches.filter(function(m){return m.date===date;});if(c.length===1)return c[0].id;var l=String(label||'').toLowerCase(),b=c.filter(function(m){return l.indexOf(String(m.opp).toLowerCase())>=0;});return b.length===1?b[0].id:null;}
+function saleOf(m){return ventes.filter(function(v){return isSaleOf(v,m);})[0];}
+function lockFull(m){return !!(m.date&&m.date<parisToday()&&m.status==='vendue'&&saleOf(m));}
+function lockFin(m){var s=saleOf(m);return !lockFull(m)&&!!(s&&s.source==='billetterie');}
+function lockedVente(v,ff){if(v.source!=='billetterie')return false;if(ff==='seller')return v.sellerSrc==='billetterie';return ff==='date'||ff==='price'||ff==='fee'||ff==='label';}
+/* ---------- vues ---------- */
+var LOGOS={'angers':'2026/06/angers_sco.png','le mans':'2026/06/le_mans_fc_2.png','le havre':'2026/06/havre_ac.png','toulouse':'2026/06/toulouse_fc.png','auxerre':'2026/06/aj_auxerre.png','troyes':'2026/06/estac_troyes_2.png','brest':'2026/04/stade_brestois_29.png','lorient':'2026/04/fc_lorient.png','psg':'2026/04/paris_saint_germain.png','lens':'2026/04/rc_lens.png','lille':'2026/04/losc_lille.png','marseille':'2026/06/olympique_de_marseille_1.png','nice':'2026/06/ogc_nice.png','lyon':'2026/06/olympique_lyonnais.png','strasbourg':'2026/06/rc_strasbourg_alsace.png','rennes':'2026/06/stade_rennais_fc.png','monaco':'2026/06/as_monaco_fc.png','montpellier':'2026/11/montpellier_fc_f.png'};
+function logoImg(opp){var k=String(opp||'').trim().toLowerCase(),f=LOGOS[k];return f?'<img class="clogo" src="'+'https://billetterie.parisfc.fr/media/'+f+'" alt="" width="26" height="26" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'';}
+var STADE='Parc des Princes, 24 rue du Commandant Guilbaud, 75016 Paris';
+function parisOff(t){var p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(t)),o={};p.forEach(function(x){o[x.type]=x.value;});return (Date.UTC(+o.year,+o.month-1,+o.day,(+o.hour)%24,+o.minute)-t)/60000;}
+function parisUtc(d,hh,mm){var a=String(d).split('-').map(Number),g=Date.UTC(a[0],a[1]-1,a[2],hh,mm),u=g-parisOff(g)*60000;u=g-parisOff(u)*60000;return new Date(u);}
+function icsStamp(dt){return dt.toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');}
+function icsDay(d,plus){var a=String(d).split('-').map(Number),x=new Date(Date.UTC(a[0],a[1]-1,a[2]+(plus||0)));return x.toISOString().slice(0,10).replace(/-/g,'');}
+function evOf(m){
+  var timed=!m.weekend&&/^\d{1,2}:\d{2}$/.test(String(m.time||'')),title='PSG – '+m.opp,desc='Abonnement PSG. Pensez à vérifier si la revente est ouverte'+(m.weekend||!timed?' (horaire du match à confirmer).':'.');
+  var e={title:title,desc:desc,loc:STADE,uid:m.id+'@revente-psg',timed:timed};
+  if(timed){var t=String(m.time).split(':').map(Number);e.start=parisUtc(m.date,t[0],t[1]);e.end=new Date(e.start.getTime()+2*3600000);}
+  else{e.day=icsDay(m.date,0);e.dayEnd=icsDay(m.date,1);}
+  var al=parisUtc(addDaysStr(m.date,-7),10,0);if(al.getTime()>Date.now())e.alarm=al;
+  return e;
+}
+function addDaysStr(d,n){var a=String(d).split('-').map(Number);return new Date(Date.UTC(a[0],a[1]-1,a[2]+n)).toISOString().slice(0,10);}
+function gcalUrl(m){
+  var e=evOf(m),dates=e.timed?icsStamp(e.start)+'/'+icsStamp(e.end):e.day+'/'+e.dayEnd;
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(e.title)+'&dates='+dates+'&details='+encodeURIComponent(e.desc)+'&location='+encodeURIComponent(e.loc);
+}
+function icsEsc(t){return String(t).replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
+function icsFold(l){var o=[];while(l.length>72){o.push(l.slice(0,72));l=' '+l.slice(72);}o.push(l);return o.join('\r\n');}
+function buildIcs(list){
+  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Revente PSG//FR','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:PSG à domicile'],now=icsStamp(new Date());
+  list.forEach(function(m){
+    var e=evOf(m);
+    L.push('BEGIN:VEVENT','UID:'+e.uid,'DTSTAMP:'+now);
+    if(e.timed){L.push('DTSTART:'+icsStamp(e.start),'DTEND:'+icsStamp(e.end));}
+    else{L.push('DTSTART;VALUE=DATE:'+e.day,'DTEND;VALUE=DATE:'+e.dayEnd);}
+    L.push('SUMMARY:'+icsEsc(e.title),'LOCATION:'+icsEsc(e.loc),'DESCRIPTION:'+icsEsc(e.desc));
+    if(e.alarm)L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Vérifier si la revente est ouverte : '+e.title),'TRIGGER;VALUE=DATE-TIME:'+icsStamp(e.alarm),'END:VALARM');
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.map(icsFold).join('\r\n')+'\r\n';
+}
+function downloadIcs(list,name){
+  if(!list.length){toast('Aucun match à ajouter.');return;}
+  try{var b=new Blob([buildIcs(list)],{type:'text/calendar;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);toast('Fichier agenda téléchargé : ouvre-le pour l’ajouter.');}
+  catch(e){toast('Téléchargement impossible sur cet appareil.');}
+}
+function card(r){
+  var m=r.m,J=r.J,p=r.p,id=esc(m.id),st=stubParts(m),listed=num(m.listed);
+  var isPast=J<0;
+  var lockF=lockFull(m),lockN=lockFin(m);
+  var px='—',cap='prix à définir';
+  if(m.status==='vendue'){px='Vendue';cap=listed!=null?eur(listed):'';}
+  else if(m.status==='gardee'){px='Gardée';cap='';}
+  else if(m.status==='enligne'&&listed!=null){px=eur(listed);cap='affiché';}
+  else if(p){px=eur(p.now);cap='conseillé';}
+  if(isPast){
+    var sv=saleOf(m);
+    if(m.status==='vendue'){px=sv?eur(netOf(sv)):'Vendue';cap=sv?'net perçu':'';}
+    else if(m.status==='pretee'){px='Prêtée';cap='';}
+    else if(m.status==='nonvendue'){px='Non vendue';cap='vente non aboutie';}
+    else if(m.status==='gardee'){px='Gardée';cap='';}
+    else{px='À renseigner';cap='issue du match';}
+  }
+  var seg=STATUS.map(function(s){return '<button type="button" class="seg-b" data-act="status" data-id="'+id+'" data-v="'+s[0]+'" aria-pressed="'+(m.status===s[0])+'">'+s[1]+'</button>';}).join('');
+  var planHtml='';
+  if(p){
+    var nextTxt=p.next?((p.next.inDays===1?'Demain':'Dans '+p.next.inDays+' jours')+' (J-'+p.next.t+') : '+eur(p.next.price)+'.'):'Dernier palier atteint : prix plancher.';
+    planHtml='<div class="plan"><div class="now"><div><span class="cap">Prix conseillé aujourd’hui</span><div class="big">'+eur(p.now)+'</div></div>'+
+      '<button type="button" class="btn ghost small" data-act="copy" data-v="'+p.now+'">Copier le prix</button></div>'+
+      '<ul class="tiers">'+p.tiers.map(function(t){return '<li class="'+(t.cur?'cur':'')+'"><span>'+t.k+'</span><b>'+eur(t.price)+'</b></li>';}).join('')+'</ul>'+
+      '<p class="note">Prochaine baisse : '+nextTxt+'</p></div>';
+  }else if(!isPast){
+    planHtml='<div class="plan"><p class="note">Renseigne le prix payé ci-dessous, ou un prix de base dans « Grille de prix », pour voir les prix conseillés.</p></div>';
+  }
+  var acts='';
+  if(p&&(m.status==='attente'||m.status==='ouverte')) acts+='<button type="button" class="btn small" data-act="posted" data-id="'+id+'" data-v="'+p.now+'">Posté à '+eur(p.now)+'</button>';
+  if(p&&m.status==='enligne'&&listed!==p.now) acts+='<button type="button" class="btn small" data-act="posted" data-id="'+id+'" data-v="'+p.now+'">Baissé à '+eur(p.now)+'</button>';
+  var qs='';
+  if(m.status==='enligne'&&!lockN) qs='<div class="qs"><span class="h3">Vendue ? Note-la en un geste</span><div class="grid">'+
+    '<div class="fld"><label for="qp-'+id+'">Prix de vente (€)</label><input id="qp-'+id+'" type="number" inputmode="decimal" step="0.01" min="0" value="'+esc(listed==null?'':listed)+'"></div>'+
+    '<div class="fld"><label for="qf-'+id+'">Commission du club (€)</label><input id="qf-'+id+'" type="number" inputmode="decimal" step="0.01" min="0" placeholder="'+(RATE?'vide = '+Math.round(RATE*100)+' %':'0')+'"></div></div>'+
+    '<button type="button" class="btn small" data-act="qsold" data-id="'+id+'">Vendue</button></div>';
+  function fld(label,field,val,extra){
+    var fid='f-'+field+'-'+id;
+    var dis=(lockN&&(field==='paid'||field==='floor'||field==='listed'))?' disabled':'';
+    return '<div class="fld"><label for="'+fid+'">'+label+'</label><input id="'+fid+'"'+dis+' type="'+(field==='openedOn'?'date':'number')+'" '+(field==='openedOn'?'':'inputmode="decimal" step="0.5" min="0" ')+'data-field="'+field+'" data-id="'+id+'" value="'+esc(val==null?'':val)+'">'+(extra?'<small>'+extra+'</small>':'')+'</div>';
+  }
+  var info=[];
+  if((m.status==='enligne'||m.status==='vendue')&&m.postedBy)info.push('Mise en vente par '+esc(m.postedBy));
+  if(m.updatedBy&&m.updatedAt){var a=ago(m.updatedAt);if(a)info.push('Dernière modification : '+esc(m.updatedBy)+', '+a);}
+  if(lockF){
+    return '<div class="fx past locked" id="fx-'+id+'" aria-label="Match verrouillé : vendu, informations enregistrées">'+
+      '<div class="sum"><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
+      '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
+      '<span class="side"><span class="pill s-'+esc(m.status)+'">'+esc(STATUS_LABEL[m.status]||m.status)+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+      '<span class="lock" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span></div></div>';
+  }
+  return '<details class="fx'+(isPast?' past':'')+'" id="fx-'+id+'" data-key="'+id+'"'+(openSet.has(m.id)?' open':'')+'>'+
+    '<summary><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
+    '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
+    '<span class="side"><span class="pill s-'+esc(m.status)+'">'+(lockN?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span>':'')+esc(STATUS_LABEL[m.status]||m.status)+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+    '<span class="chev" aria-hidden="true"></span></summary>'+
+    '<div class="body"><div class="seg" role="group" aria-label="Statut de la revente pour '+esc(m.opp)+'">'+seg+'</div>'+planHtml+
+    (acts&&!lockN?'<div class="acts">'+acts+'</div>':'')+
+    qs+
+    (isPast?'':'<div class="acts"><a class="btn ghost small" href="'+esc(gcalUrl(m))+'" target="_blank" rel="noopener">Google Agenda</a><button type="button" class="btn ghost small" data-act="ics" data-id="'+id+'">Autre agenda (.ics)</button>'+('share' in navigator?'<button type="button" class="btn ghost small" data-act="share" data-id="'+id+'">Partager</button>':'')+'</div>')+
+    '<div class="grid">'+fld('Prix payé (€)','paid',m.paid)+fld('Plancher (€)','floor',m.floor,'Vide : plancher de la grille')+fld('Prix affiché (€)','listed',listed)+fld('Revente vue ouverte le','openedOn',m.openedOn||'','Sert à apprendre le moment d’ouverture')+'</div>'+
+    (lockN?'<p class="note">Verrouillé : le prix de cette vente a été récupéré depuis la billetterie.</p>':'')+
+    (info.length?'<p class="note">'+info.join(' · ')+'</p>':'')+
+    '</div></details>';
+}
 
-function mutVentes(fn) {
-  var ref = db.doc('revente_config/ventes');
-  return db.runTransaction(function (tx) {
-    return tx.get(ref).then(function (d) {
-      var x = d.exists ? d.data() : {};
-      var r = fn(x.v || [], x.t || []);
-      tx.set(ref, { v: r.v, t: r.t });
+function settings(){
+  function f(label,key,val,hint){
+    var fid='c-'+key;
+    return '<div class="fld"><label for="'+fid+'">'+label+'</label><input id="'+fid+'" type="number" inputmode="decimal" step="0.5" min="0" data-cfg="'+key+'" value="'+esc(val==null?'':val)+'">'+(hint?'<small>'+hint+'</small>':'')+'</div>';
+  }
+  var ex=plan({paid:30},99);
+  var exTxt=ex?ex.tiers.map(function(t){return t.k+' '+eur(t.price);}).join(' → '):'';
+  return '<details class="panel set" data-key="cfg"'+(openSet.has('cfg')?' open':'')+'><summary><span class="h2">Grille de prix</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<p class="note">Valeurs de départ à ajuster. Elles s’appliquent à tous les matchs sans prix propre, pour vous deux.</p>'+
+    '<div class="grid" style="margin-top:12px">'+
+    f('Prix de base par place (€)','basePrice',num(cfg.basePrice),'Utilisé si le prix payé est vide')+
+    f('Majoration à l’ouverture (%)','markup',cfg.markup,'0 : tu pars du prix de base')+
+    f('Baisse à J-7 (%)','drop7',cfg.drop7)+
+    f('Baisse à J-3 (%)','drop3',cfg.drop3)+
+    f('Plancher (% du prix de base)','floorPct',cfg.floorPct,'Atteint à J-1')+
+    f('Surveiller dès J-','watchFrom',cfg.watchFrom,'Jours avant le match')+
+    '</div><p class="note" style="margin-top:12px">Exemple, place à 30 € : '+esc(exTxt)+'.</p></details>';
+}
+
+function learned(){
+  var obs=matches.filter(function(m){return m.openedOn&&m.date;}).map(function(m){return {m:m,j:daysBetween(m.openedOn,m.date)};}).filter(function(o){return o.j>=0;});
+  var body;
+  if(!obs.length){
+    body='<p class="sub">Note la date où un match apparaît dans le filtre « revente ouverte ». Après deux ou trois matchs, vous saurez à partir de quel jour surveiller.</p>';
+  }else{
+    var js=obs.map(function(o){return o.j;}),sum=js.reduce(function(a,b){return a+b;},0);
+    var avg=Math.round(sum/js.length),mn=Math.min.apply(null,js),mx=Math.max.apply(null,js);
+    body='<p><strong>La revente ouvre en général à J-'+avg+'</strong>'+(js.length>1?' (de J-'+mn+' à J-'+mx+')':'')+'. '+(js.length===1?'Une seule observation, à confirmer. ':'')+'Surveillez chaque jour dès J-'+(mx+2)+'.</p>'+
+      '<ul>'+obs.map(function(o){return '<li>'+esc(o.m.opp)+' : vue ouverte à J-'+o.j+'</li>';}).join('')+'</ul>';
+  }
+  return '<section class="panel stat" aria-labelledby="h-learn"><h2 id="h-learn">Quand la revente ouvre-t-elle ?</h2>'+body+'</section>';
+}
+
+function histo(){
+  var rows=matches.filter(function(m){return m.openedOn||m.listedOn||m.soldOn||saleOf(m);}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));});
+  var jx=function(d,m){return d&&m.date?'J-'+daysBetween(d,m.date):'—';};
+  var body;
+  if(!rows.length)body='<p class="sub">Rien à afficher pour l’instant. Les dates se remplissent toutes seules quand vous changez le statut d’un match (ouverte, en vente, vendue).</p>';
+  else body='<div class="tbl"><table><thead><tr><th scope="col">Match</th><th scope="col">Revente ouverte</th><th scope="col">Mise en vente</th><th scope="col">Vendu</th><th scope="col">Délai</th><th scope="col">Prix affiché</th><th scope="col">Net final</th></tr></thead><tbody>'+rows.map(function(m){
+    var sl=saleOf(m),sold=m.soldOn||'',lag=(m.listedOn&&sold)?Math.max(0,daysBetween(m.listedOn,sold))+' j':'—';
+    return '<tr><th scope="row">'+esc(m.opp)+'</th><td>'+jx(m.openedOn,m)+'</td><td>'+jx(m.listedOn,m)+'</td><td>'+jx(sold,m)+'</td><td>'+lag+'</td><td>'+eur(m.firstListed!=null?m.firstListed:(m.listed||null))+'</td><td>'+(sl?eur(netOf(sl)):'—')+'</td></tr>';
+  }).join('')+'</tbody></table></div><p class="note">J-x = nombre de jours avant le match. Les matchs passés n’ont pas encore ces dates : elles se rempliront à partir des prochains matchs.</p>';
+  return '<section class="panel" aria-labelledby="h-histo"><h2 id="h-histo">Historique des reventes</h2>'+body+'</section>';
+}
+function lastCheckText(){
+  if(!cfg.lastCheck)return 'Aucune vérification notée.';
+  try{
+    return 'Dernière vérification : '+new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(cfg.lastCheck))+(cfg.lastCheckBy?' par '+cfg.lastCheckBy:'');
+  }catch(e){return '';}
+}
+
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
+function titleBlock(sub){return '<header class="hd"><div><h1>Revente PSG</h1><p class="sub">'+esc(sub)+'</p></div><button type="button" class="sw" role="switch" data-act="theme" aria-checked="'+isDark()+'" aria-label="Thème sombre"><span class="swl">'+(isDark()?'Sombre':'Clair')+'</span><i></i></button></header>';}
+
+function setupView(){
+  return titleBlock('Configuration à terminer')+'<section class="panel"><h2>Il manque la configuration</h2>'+
+    '<p>Ouvre le fichier <strong>config.js</strong> et renseigne les comptes utilisateurs (USERS). Les étapes sont dans <strong>LISEZMOI.md</strong>.</p></section>';
+}
+function loginView(){
+  var last=lastUser();
+  var opts=users().map(function(u){return '<option value="'+esc(u.email)+'"'+(u.email===last?' selected':'')+'>'+esc(u.name)+'</option>';}).join('');
+  return titleBlock('Abonnement PSG · accès privé')+'<form class="panel" id="login-form"><h2>Connexion</h2>'+
+    '<div class="fld"><label for="usr">Qui es-tu ?</label><select id="usr">'+opts+'</select></div>'+
+    '<div class="fld"><label for="pw">Mot de passe</label><input id="pw" type="password" autocomplete="current-password" required></div>'+
+    (loginErr?'<p class="msg-err" role="alert">'+esc(loginErr)+'</p>':'')+
+    '<button type="submit" class="btn">Entrer</button></form>';
+}
+
+
+function pushSupported(){return ('Notification' in window)&&('serviceWorker' in navigator)&&('PushManager' in window)&&typeof firebase!=='undefined'&&typeof firebase.messaging==='function';}
+function pushStandalone(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||('standalone' in navigator&&navigator.standalone);}
+function pushRef(){return db.collection('revente_config').doc('push');}
+function pushKeyOf(tok){return String(who||'x')+'_'+tok.slice(-14).replace(/[^A-Za-z0-9_-]/g,'');}
+function pushPanel(){
+  var on=false;try{on=localStorage.getItem('psg-push')==='1';}catch(e){}
+  var h='<details class="panel set" data-key="push"'+(openSet.has('push')?' open':'')+'><summary><span class="h2">Notifications push</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<p class="note">Reçois une notification sur ce téléphone quand une action est à faire (revente à poster, prix à baisser), même appli fermée. Sur iPhone : installe d’abord l’appli sur l’écran d’accueil.</p>';
+  if(!pushSupported()){
+    h+='<p class="msg-err" role="status">'+(('Notification' in window)?'Ce navigateur ne gère pas les notifications push.':'Notifications indisponibles ici : '+(pushStandalone()?'navigateur non compatible.':'ouvre l’appli installée sur l’écran d’accueil.'))+'</p>';
+  }else{
+    if(!cfg.vapidKey){
+      h+='<div class="fld"><label for="push-vapid">Clé web push (VAPID), à coller une seule fois</label><input id="push-vapid" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"><small>Console Firebase → Paramètres du projet → Cloud Messaging → Certificats Web Push → Générer une paire de clés.</small></div>'+
+        '<button type="button" class="btn ghost" data-act="pushkey">Enregistrer la clé</button>';
+    }else{
+      h+=on?'<p class="note"><b>Activées sur cet appareil.</b></p><button type="button" class="btn ghost" data-act="pushoff">Désactiver sur cet appareil</button>'
+           :'<button type="button" class="btn" data-act="pushon"'+(pushMsg&&pushMsg.busy?' disabled':'')+'>Activer les notifications sur cet appareil</button>';
+    }
+  }
+  if(pushMsg&&pushMsg.t)h+='<p class="'+(pushMsg.ok?'note':'msg-err')+'" role="status">'+esc(pushMsg.t)+'</p>';
+  return h+'</details>';
+}
+async function pushOn(){
+  pushMsg={busy:true,ok:true,t:'Activation en cours…'};render();
+  try{
+    var perm=await Notification.requestPermission();
+    if(perm!=='granted'){pushMsg={ok:false,t:'Autorisation refusée : active-la dans les réglages du téléphone.'};render();return;}
+    var reg=await navigator.serviceWorker.ready;
+    var tok=await firebase.messaging().getToken({vapidKey:cfg.vapidKey,serviceWorkerRegistration:reg});
+    if(!tok)throw new Error('Aucun jeton reçu');
+    var o={};o[pushKeyOf(tok)]={token:tok,who:who,at:new Date().toISOString(),ua:String(navigator.userAgent||'').slice(0,80)};
+    await pushRef().set({t:o},{merge:true});
+    try{localStorage.setItem('psg-push','1');localStorage.setItem('psg-push-key',pushKeyOf(tok));}catch(e){}
+    pushMsg={ok:true,t:'Notifications activées sur cet appareil.'};render();
+  }catch(e){
+    if(isAuthError(e)){await logout();return;}
+    pushMsg={ok:false,t:'Activation impossible : '+(e.message||e.code)};render();
+  }
+}
+async function pushOff(){
+  try{
+    var k=null;try{k=localStorage.getItem('psg-push-key');}catch(e){}
+    if(k)await pushRef().update('t.'+k,firebase.firestore.FieldValue.delete());
+    try{await firebase.messaging().deleteToken();}catch(e){}
+    try{localStorage.removeItem('psg-push');localStorage.removeItem('psg-push-key');}catch(e){}
+    pushMsg={ok:true,t:'Notifications désactivées sur cet appareil.'};
+  }catch(e){if(isAuthError(e)){await logout();return;}pushMsg={ok:false,t:'Désactivation impossible : '+(e.message||e.code)};}
+  render();
+}
+function rstPanel(){
+  var h='<details class="panel set" data-key="rst"'+(openSet.has('rst')?' open':'')+'><summary><span class="h2">Restaurer une sauvegarde</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<p class="note">Sert uniquement en cas de problème : charge le fichier JSON reçu par e-mail (« sauvegarde hebdomadaire »). Rien n’est modifié avant ta confirmation.</p>'+
+    '<div class="fld"><label for="rst-file">Fichier de sauvegarde (.json)</label><input id="rst-file" type="file" accept=".json,application/json"></div>';
+  if(rst&&rst.err)h+='<p class="msg-err" role="status">'+esc(rst.err)+'</p>';
+  if(rst&&rst.sum){
+    var q=rst.sum;
+    h+='<div class="note" role="status"><strong>Aperçu de la sauvegarde</strong> (du '+esc(q.date)+')<br>'+q.matches+' matchs · '+q.ventes+' ventes · '+q.transfers+' virements · '+q.abos+' abonnements<br>'+
+      'Actuellement dans l’appli : '+matches.length+' matchs · '+ventes.length+' ventes · '+transfers.length+' virements · '+abos.length+' abonnements.</p>'+
+      '<p class="msg-err">Attention : la restauration remplace les données actuelles par celles du fichier.</p>'+
+      '<div class="cta-row"><button type="button" class="btn" data-act="rstgo"'+(rst.busy?' disabled':'')+'>Confirmer la restauration</button> <button type="button" class="btn ghost" data-act="rstno">Annuler</button></div>';
+  }
+  return h+'</details>';
+}
+function rstParse(txt){
+  var d;try{d=JSON.parse(txt);}catch(e){return {err:'Fichier illisible : ce n’est pas un JSON valide.'};}
+  if(!d||typeof d!=='object'||!d.revente_matches||typeof d.revente_matches!=='object'||!d.revente_config||typeof d.revente_config!=='object')return {err:'Ce fichier n’est pas une sauvegarde Revente PSG.'};
+  var ids=Object.keys(d.revente_matches);
+  if(!ids.length)return {err:'La sauvegarde ne contient aucun match : restauration refusée.'};
+  for(var i=0;i<ids.length;i++){var m=d.revente_matches[ids[i]];if(!m||typeof m!=='object'||!m.opp||!m.date)return {err:'Match invalide dans le fichier ('+ids[i]+') : restauration refusée.'};}
+  var ok=['main','ventes','abonnements'],cs=Object.keys(d.revente_config);
+  for(var j=0;j<cs.length;j++){if(ok.indexOf(cs[j])<0||!d.revente_config[cs[j]]||typeof d.revente_config[cs[j]]!=='object')return {err:'Document de configuration inattendu ('+cs[j]+') : restauration refusée.'};}
+  var cv=d.revente_config.ventes||{},ca=d.revente_config.abonnements||{};
+  var dt=d.exportedAt?new Date(d.exportedAt):null;
+  return {data:d,sum:{date:dt&&!isNaN(dt)?dt.toLocaleString('fr-FR',{timeZone:'Europe/Paris'}):'date inconnue',matches:ids.length,ventes:Object.keys(cv.v||{}).length,transfers:Object.keys(cv.t||{}).length,abos:Object.keys(ca.a||{}).length}};
+}
+async function rstGo(){
+  if(!rst||!rst.data||rst.busy)return;
+  rst.busy=true;render();
+  try{
+    var d=rst.data,b=db.batch();
+    Object.keys(d.revente_matches).forEach(function(id){b.set(mref().doc(id),d.revente_matches[id]);});
+    Object.keys(d.revente_config).forEach(function(id){b.set(db.collection('revente_config').doc(id),d.revente_config[id]);});
+    await b.commit();
+    rst=null;openSet.delete('rst');await reload();render();toast('Sauvegarde restaurée.');
+  }catch(e){
+    if(isAuthError(e)){await logout();return;}
+    rst={err:'Restauration impossible : '+(e.message||e.code)};render();
+  }
+}
+function render(){
+  if(state==='setup'){app.innerHTML=setupView();return;}
+  if(state==='login'){app.innerHTML=loginView();var pw=document.getElementById('pw');if(pw)pw.focus();return;}
+  var today=parisToday();
+  var rows=matches.filter(function(m){return m&&m.date;}).map(function(m){return {m:m,J:daysBetween(today,m.date)};}).filter(function(r){return r.J>=0;});
+  rows.forEach(function(r){r.p=plan(r.m,r.J);});
+  var past=matches.filter(function(m){return m&&m.date;}).map(function(m){return {m:m,J:daysBetween(today,m.date)};}).filter(function(r){return r.J<0;}).sort(function(a,b){return b.J-a.J;});
+  var fin=(state==='ok'&&tab==='fin');
+  var h=titleBlock(state==='ok'?rows.length+' matchs à domicile à venir · abonnement PSG':'Abonnement PSG');
+  if(state==='ok')h+=tabsNav()+viewBar();
+  if(state==='ok'&&syncErr&&navigator.onLine!==false)h+='<p class="msg-err" role="alert">Synchronisation interrompue : les données affichées peuvent ne pas être à jour. <button type="button" class="link" data-act="retry">Réessayer</button></p>';
+  if(!fin)h+='<section class="panel" aria-labelledby="h-cta"><h2 id="h-cta">Revente ouverte quelque part ?</h2>'+
+    '<p class="sub">Le filtre du site liste seulement les matchs dont la revente est ouverte.</p>'+
+    '<a class="btn" href="'+URL_OPEN+'" target="_blank" rel="noopener">Voir les matchs à revente ouverte</a>'+
+    '<div class="cta-row"><button type="button" class="btn ghost" data-act="check"'+(state==='ok'?'':' disabled')+'>J’ai vérifié</button><span class="muted">'+esc(lastCheckText())+'</span></div>'+
+    '<p class="links"><a href="'+URL_ALL+'" target="_blank" rel="noopener">Calendrier complet</a> · <a href="'+URL_PLAT+'" target="_blank" rel="noopener">Plateforme de revente du club</a></p></section>';
+  if(state==='loading'){
+    h+='<p class="panel sub">Chargement des matchs…</p>';
+  }else if(state==='error'){
+    h+='<section class="panel"><h2>Données injoignables</h2><p>'+esc(errMsg||'Impossible de lire les données.')+'</p><button type="button" class="btn ghost" data-act="retry">Réessayer</button></section>';
+  }else if(fin){
+    h+=financeView();
+  }else if(state==='ok'){
+    var todo=buildTodo(rows);
+    h+='<section class="panel" aria-labelledby="h-todo"><h2 id="h-todo">À faire maintenant</h2>';
+    if(todo.length){
+      h+='<ul class="list">'+todo.map(function(t){return '<li><button type="button" class="todo-item" data-act="open" data-id="'+esc(t.id)+'"><span class="tag '+t.cls+'">'+t.tag+'</span><span>'+esc(t.text)+'</span></button></li>';}).join('')+'</ul>';
+    }else{
+      h+='<p class="sub">Rien d’urgent. Les actions apparaissent ici dès qu’une revente s’ouvre ou qu’un prix doit baisser.</p>';
+    }
+    h+='</section>';
+    h+='<section aria-labelledby="h-fx"><div class="vbar" style="margin-bottom:10px"><h2 id="h-fx" style="margin:0">Matchs à domicile</h2><button type="button" class="btn ghost small" data-act="icsall">Tout ajouter à mon agenda</button></div><div class="fixtures">'+
+      (rows.length?rows.map(card).join(''):'<p class="panel sub">Aucun match enregistré.</p>')+'</div></section>';
+    if(fullView&&past.length)h+='<section aria-labelledby="h-past"><h2 id="h-past" style="margin-bottom:10px">Matchs passés ('+past.length+')</h2><div class="fixtures">'+past.map(card).join('')+'</div></section>';
+    if(fullView){h+=learned();h+=histo();
+    h+=settings();
+    h+='<p class="note">Les deux places côte à côte se vendent par paire : un seul de vous deux met la paire en vente. Revente à passer uniquement par la plateforme officielle du club.</p>';}
+  }
+  if(state==='ok'&&fullView){
+    h+=pushPanel();
+    h+=rstPanel();
+    h+='<details class="panel set" data-key="pw"'+(openSet.has('pw')?' open':'')+'><summary><span class="h2">Mon mot de passe</span><span class="chev" aria-hidden="true"></span></summary>'+
+      '<form id="pw-form" style="display:flex;flex-direction:column;gap:12px">'+
+      '<p class="note">Change le mot de passe de ton compte ('+esc(who||'')+'). Il faut saisir l’actuel pour confirmer.</p>'+
+      '<div class="fld"><label for="pw-cur">Mot de passe actuel</label><input id="pw-cur" type="password" autocomplete="current-password" required></div>'+
+      '<div class="fld"><label for="pw-new">Nouveau mot de passe (8 caractères minimum)</label><input id="pw-new" type="password" autocomplete="new-password" minlength="8" required></div>'+
+      '<div class="fld"><label for="pw-new2">Confirmer le nouveau mot de passe</label><input id="pw-new2" type="password" autocomplete="new-password" minlength="8" required></div>'+
+      (pwMsg?'<p class="'+(pwMsg.ok?'note':'msg-err')+'" role="status">'+esc(pwMsg.t)+'</p>':'')+
+      '<button type="submit" class="btn">Changer mon mot de passe</button></form></details>';
+  }
+  h+='<p class="note">Connecté en tant que <strong>'+esc(who||'?')+'</strong> · <button type="button" class="link" data-act="logout">se déconnecter</button></p>';
+  app.innerHTML=h;
+}
+
+
+/* ---------- finances ---------- */
+function seasonOf(d){var p=String(d).split('-').map(Number);var y=p[0],mo=p[1];var a=mo>=8?y:y-1;return a+'-'+String(a+1).slice(2);}
+function seasonOfSale(v){var m=v.matchId?matches.filter(function(x){return x.id===v.matchId;})[0]:null;return seasonOf(m&&m.date?m.date:v.date);}
+function fiscalOf(d){return String(d).slice(0,4);}
+function netOf(v){return Math.round((v.price-v.fee)*100)/100;}
+function groupBy(list,fn){
+  var g={};
+  list.forEach(function(v){var k=fn(v);if(!g[k])g[k]={k:k,n:0,brut:0,fee:0,net:0};g[k].n++;g[k].brut+=v.price;g[k].fee+=v.fee;g[k].net+=netOf(v);});
+  return Object.keys(g).sort().reverse().map(function(k){return g[k];});
+}
+function sortedVentes(){return ventes.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id));});}
+function tabsNav(){
+  return '<nav class="tabs" aria-label="Sections"><button type="button" class="tab" data-act="tab" data-v="matchs" aria-pressed="'+(tab==='matchs')+'">Matchs</button>'+
+    '<button type="button" class="tab" data-act="tab" data-v="fin" aria-pressed="'+(tab==='fin')+'">Finances</button></nav>';
+}
+function sumTable(title,list,keyLabel){
+  if(!list.length)return '';
+  var tot={n:0,brut:0,fee:0,net:0};list.forEach(function(g){tot.n+=g.n;tot.brut+=g.brut;tot.fee+=g.fee;tot.net+=g.net;});
+  function row(g,b){var t=b?'th':'td';return '<tr'+(b?' class="tot"':'')+'><th scope="row">'+esc(g.k)+'</th><td>'+g.n+'</td><td>'+eur(g.brut)+'</td><td>'+eur(g.fee)+'</td><td>'+eur(g.net)+'</td><td>'+eur(g.net/2)+'</td></tr>';}
+  return '<section class="panel" aria-label="'+esc(title)+'"><h2>'+esc(title)+'</h2><div class="tbl"><table><thead><tr><th scope="col">'+esc(keyLabel)+'</th><th scope="col">Nb</th><th scope="col">Brut</th><th scope="col">Comm.</th><th scope="col">Net</th><th scope="col">Part ÷2</th></tr></thead><tbody>'+
+    list.map(function(g){return row(g);}).join('')+row({k:'Total',n:tot.n,brut:tot.brut,fee:tot.fee,net:tot.net},true)+'</tbody></table></div></section>';
+}
+
+function sellers(){return users().map(function(u){return u.name;});}
+function r2(n){return Math.round(n*100)/100;}
+function selOpts(sel,blank){var o=blank?'<option value="">— à renseigner —</option>':'';return o+sellers().map(function(n){return '<option value="'+esc(n)+'"'+(n===sel?' selected':'')+'>'+esc(n)+'</option>';}).join('');}
+function srcLabel(v){
+  if(v.source==='billetterie')return 'Récupérée depuis la billetterie'+(v.edited?' · modifiée à la main par '+v.edited:'')+(v.by?' (importée par '+v.by+')':'');
+  return 'Saisie manuelle'+(v.by?' par '+v.by:'');
+}
+function sellerLabel(v){
+  if(!v.seller)return 'à renseigner';
+  return v.seller+(v.sellerSrc==='billetterie'?' · d’après le titulaire du compte bancaire sur la billetterie':(v.sellerBy?' · saisi par '+v.sellerBy:''));
+}
+function balance(){
+  var us=sellers(),enc={},tin={},tout={},pp={};
+  us.forEach(function(n){enc[n]=0;tin[n]=0;tout[n]=0;pp[n]=0;});
+  var un=0,pend=0,pendN=0;
+  ventes.forEach(function(v){if(enc[v.seller]===undefined){un++;return;}enc[v.seller]+=netOf(v);if(v.reglement==='attente'){pend+=netOf(v);pendN++;pp[v.seller]+=netOf(v);}});
+  transfers.forEach(function(t){if(tout[t.from]!==undefined)tout[t.from]+=t.amount;if(tin[t.to]!==undefined)tin[t.to]+=t.amount;});
+  var tot=us.reduce(function(s,n){return s+enc[n];},0),fair=us.length?tot/us.length:0;
+  return {un:un,pend:pend,pendN:pendN,tot:tot,fair:fair,rows:us.map(function(n){return {n:n,enc:enc[n],pend:pp[n],out:tout[n],inn:tin[n],bal:r2(enc[n]-tout[n]+tin[n]-fair)};})};
+}
+function balanceView(){
+  var b=balance(),h='<section class="panel" aria-labelledby="h-bal"><h2 id="h-bal">Qui a vendu, qui doit quoi</h2>';
+  var debt=b.rows.filter(function(r){return r.bal>0.005;}),cred=b.rows.filter(function(r){return r.bal<-0.005;});
+  var msg;
+  if(!ventes.length)msg='Aucune vente pour l’instant.';
+  else if(!debt.length)msg='Les comptes sont à jour.';
+  else if(debt.length===1&&cred.length===1)msg='<b>'+esc(debt[0].n)+' doit '+eur(debt[0].bal)+' à '+esc(cred[0].n)+'.</b>';
+  else msg=b.rows.map(function(r){return esc(r.n)+' : '+(r.bal>0?'doit '+eur(r.bal):r.bal<0?'doit recevoir '+eur(-r.bal):'à jour');}).join(' · ');
+  h+='<p class="verdict">'+msg+'</p>';
+  if(b.un)h+='<p class="note warn-n">'+b.un+' vente(s) sans vendeur renseigné : elles ne sont pas comptées ici. Choisis le vendeur dans « Détail des ventes ».</p>';
+  h+='<p class="note"><b>Total net des reventes : '+eur(b.tot)+'</b> · part de chacun : <b>'+eur(b.fair)+'</b> ('+sellers().length+' personnes).'+(b.pendN?' Dont '+eur(b.pend)+' pas encore versés par le club ('+b.pendN+' vente'+(b.pendN>1?'s':'')+') : ils sont comptés pour celui qui va les recevoir.':'')+'</p>';
+  h+='<div class="tbl"><table><thead><tr><th scope="col">Qui</th><th scope="col">Net vendu</th><th scope="col">Viré</th><th scope="col">Reçu</th><th scope="col">Solde</th></tr></thead><tbody>'+
+    b.rows.map(function(r){return '<tr><th scope="row">'+esc(r.n)+'</th><td>'+eur(r.enc)+(r.pend>0?'<br><small class="muted">dont '+eur(r.pend)+' à recevoir</small>':'')+'</td><td>'+eur(r.out)+'</td><td>'+eur(r.inn)+'</td><td>'+(r.bal>0.005?'doit '+eur(r.bal):r.bal<-0.005?'reçoit '+eur(-r.bal):'0 €')+'</td></tr>';}).join('')+'</tbody></table></div>';
+  h+='<p class="note">Net vendu = net des ventes dont la personne est le vendeur (c’est elle qui reçoit le virement du club), règlements en attente compris. Solde = net vendu − virements faits + virements reçus − part de chacun. Le solde est donc le montant à virer, qu’un règlement du club soit encore en attente ou non.</p>';
+  var us=sellers();
+  h+='<details class="panel set" data-key="addt"'+(openSet.has('addt')?' open':'')+'><summary><span class="h2">Enregistrer un virement entre nous</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<form id="tr-form" style="display:flex;flex-direction:column;gap:12px"><div class="grid">'+
+    '<div class="fld"><label for="t-from">Qui a viré</label><select id="t-from">'+selOpts(who,false)+'</select></div>'+
+    '<div class="fld"><label for="t-to">À qui</label><select id="t-to">'+selOpts(us.filter(function(n){return n!==who;})[0]||'',false)+'</select></div>'+
+    '<div class="fld"><label for="t-amt">Montant (€)</label><input id="t-amt" type="number" inputmode="decimal" step="0.01" min="0" required></div>'+
+    '<div class="fld"><label for="t-date">Date</label><input id="t-date" type="date" value="'+parisToday()+'" required></div></div>'+
+    '<div class="fld"><label for="t-note">Note</label><input id="t-note" type="text"></div>'+
+    '<button type="submit" class="btn">Enregistrer le virement</button></form></details>';
+  if(transfers.length){
+    h+='<div class="vlist">'+transfers.map(function(t){return '<div class="vrow"><div class="vhead"><b>'+esc(t.from)+' → '+esc(t.to)+' · '+eur(t.amount)+'</b><span class="muted">'+esc(t.date)+(t.note?' · '+esc(t.note):'')+(t.by?' · saisi par '+esc(t.by):'')+'</span></div><button type="button" class="btn ghost small" data-act="deltr" data-id="'+esc(t.id)+'">Supprimer ce virement</button></div>';}).join('')+'</div>';
+  }
+  return h+'</section>';
+}
+
+/* ---------- rentabilité de l'abonnement ---------- */
+var MOIS=['Janv','Févr','Mars','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+function seasonStart(s){var y=Number(String(s).slice(0,4));return Date.UTC(y,7,1);}
+function seasonEnd(s){var y=Number(String(s).slice(0,4));return Date.UTC(y+1,6,31);}
+function roiOf(abo){
+  var n=Math.max(1,sellers().length),sales=ventes.filter(function(v){return seasonOfSale(v)===abo.season;}).sort(function(x,y){return String(x.date).localeCompare(String(y.date));});
+  var net=0,pend=0;sales.forEach(function(v){net+=netOf(v);if(v.reglement==='attente')pend+=netOf(v);});
+  var share=r2(net/n);
+  return {abo:abo,sales:sales,net:net,share:share,pend:r2(pend/n),n:n,pct:abo.amount>0?share/abo.amount*100:0,left:r2(abo.amount-share)};
+}
+function roiChart(R){
+  var W=340,H=190,L=40,Rr=10,T=14,B=26,pw=W-L-Rr,ph=H-T-B,s=R.abo.season,t0=seasonStart(s),t1=seasonEnd(s),cost=R.abo.amount,n=R.n;
+  var todayT=Date.parse(parisToday()+'T00:00:00Z'),tEnd=Math.min(Math.max(todayT,t0),t1);
+  var cum=0,pts=[[t0,0]],dots=[],be=null;
+  R.sales.forEach(function(v){var t=Date.parse(v.date+'T00:00:00Z');pts.push([t,cum]);cum+=netOf(v)/n;pts.push([t,cum]);dots.push({t:t,c:cum});if(be===null&&cost>0&&cum>=cost)be={t:t,c:cum};});
+  pts.push([Math.max(tEnd,pts[pts.length-1][0]),cum]);
+  var ymax=Math.max(cost,cum)*1.15||100;
+  function X(t){return L+(t-t0)/(t1-t0)*pw;}function Y(c){return T+ph-c/ymax*ph;}
+  var d=pts.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join(' ');
+  var last=pts[pts.length-1],area=d+' L'+X(last[0]).toFixed(1)+' '+Y(0).toFixed(1)+' L'+X(t0).toFixed(1)+' '+Y(0).toFixed(1)+' Z';
+  var g='',ticks=[0,0.5,1].map(function(f){return cost*f;});if(!cost)ticks=[0,ymax/2];
+  ticks.forEach(function(c){g+='<line class="g" x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(c).toFixed(1)+'" y2="'+Y(c).toFixed(1)+'"/><text class="yl" x="'+(L-5)+'" y="'+(Y(c)+3).toFixed(1)+'" text-anchor="end">'+Math.round(c)+' €</text>';});
+  var xl='';for(var k=0;k<12;k++){var mo=(7+k)%12,yr=Number(s.slice(0,4))+(7+k>11?1:0),tt=Date.UTC(yr,mo,1);var x=X(tt).toFixed(1);xl+='<line class="g" x1="'+x+'" x2="'+x+'" y1="'+(T+ph)+'" y2="'+(T+ph+3)+'"/>'+(k%3===0?'<text class="yl" x="'+x+'" y="'+(H-8)+'">'+MOIS[mo]+'</text>':'');}
+  var cl=cost?'<line class="cost" x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(cost).toFixed(1)+'" y2="'+Y(cost).toFixed(1)+'"/><text class="cl" x="'+(W-Rr)+'" y="'+(Y(cost)-4).toFixed(1)+'" text-anchor="end">Abonnement '+eur(cost)+'</text>':'';
+  var dt=dots.map(function(p){return '<circle class="dt" cx="'+X(p.t).toFixed(1)+'" cy="'+Y(p.c).toFixed(1)+'" r="3.5"/>';}).join('');
+  var bm=be?'<circle class="be" cx="'+X(be.t).toFixed(1)+'" cy="'+Y(cost).toFixed(1)+'" r="6"/>':'';
+  var lbl='Courbe de remboursement de l’abonnement '+s+' : '+eur(R.share)+' revendus sur '+eur(cost)+'.';
+  return '<svg class="rchart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(lbl)+'">'+g+xl+'<path class="ar" d="'+area+'"/>'+cl+'<path class="ln" d="'+d+'"/>'+dt+bm+'</svg>';
+}
+function roiCard(R){
+  var a=R.abo,done=R.share>=a.amount&&a.amount>0,pct=Math.min(100,R.pct);
+  var verdict=!a.amount?'Montant de l’abonnement à renseigner.':done?'Abonnement amorti : <b>+'+eur(r2(R.share-a.amount))+'</b> de gain.':'Il reste <b>'+eur(R.left)+'</b> à rembourser.';
+  var locked=a.source==='billetterie';
+  var h='<section class="panel roi" aria-label="Rentabilité '+esc(a.person)+' '+esc(a.season)+'"><div class="roih"><h2>Saison '+esc(a.season)+' · '+esc(a.person)+'</h2>'+(locked?'<span class="src bil"><span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span> Commande n° '+esc(a.ref||'?')+' · billetterie</span>':'<span class="src man">Informations saisies manuellement'+(a.by?' (par '+esc(a.by)+')':'')+'</span>')+'</div>'+
+    '<div class="roip"><b class="big'+(done?' ok':'')+'">'+Math.round(R.pct)+' %</b><span class="cap">de l’abonnement remboursé</span></div>'+
+    '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(pct)+'"><i class="'+(done?'ok':'')+'" style="width:'+pct.toFixed(1)+'%"></i></div>'+
+    '<p class="verdict">'+verdict+'</p>'+
+    '<div class="kpis"><div><span class="cap">Abonnement</span><b class="big">'+eur(a.amount)+'</b></div><div><span class="cap">Part revendue</span><b class="big">'+eur(R.share)+'</b></div><div><span class="cap">Paires vendues</span><b class="big">'+R.sales.length+'</b></div></div>'+
+    roiChart(R)+
+    '<p class="note">Part revendue = net des reventes de la saison ÷ '+R.n+' personnes (la recette est partagée à parts égales).'+(R.pend>0?' Dont '+eur(R.pend)+' en attente de règlement par le club.':'')+'</p>';
+  if(!locked)h+='<button type="button" class="btn ghost small" data-act="delabo" data-id="'+esc(a.id)+'">Supprimer cet abonnement</button>';
+  return h+'</section>';
+}
+function roiView(){
+  var h='';
+  var rs=abos.map(roiOf);
+  if(rs.length>1){
+    h+='<section class="panel" aria-labelledby="h-roi"><h2 id="h-roi">Rentabilité par saison</h2><ul class="cmp">'+rs.map(function(R){var p=Math.min(100,R.pct);return '<li><span class="cmpl">'+esc(R.abo.season)+' · '+esc(R.abo.person)+'</span><span class="bar"><i class="'+(R.share>=R.abo.amount&&R.abo.amount>0?'ok':'')+'" style="width:'+p.toFixed(1)+'%"></i></span><b>'+Math.round(R.pct)+' %</b></li>';}).join('')+'</ul></section>';
+  }
+  if(!rs.length)h+='<section class="panel"><h2>Rentabilité de l’abonnement</h2><p class="sub">Ajoute le montant d’un abonnement pour suivre son remboursement par les reventes.</p></section>';
+  rs.forEach(function(R){h+=roiCard(R);});
+  var seasons={};ventes.forEach(function(v){seasons[seasonOfSale(v)]=1;});
+  var missing=[];Object.keys(seasons).sort().reverse().forEach(function(s){sellers().forEach(function(p){if(!abos.some(function(x){return x.season===s&&x.person===p;}))missing.push(p+' ('+s+')');});});
+  var opts=Object.keys(seasons).sort().reverse();if(!opts.length)opts=[seasonOf(parisToday())];
+  h+='<details class="panel set" data-key="addabo"'+(openSet.has('addabo')?' open':'')+'><summary><span class="h2">Ajouter un abonnement</span><span class="chev" aria-hidden="true"></span></summary>'+
+    (missing.length?'<p class="note">À renseigner : '+esc(missing.join(', '))+'.</p>':'')+
+    '<form id="abo-form" style="display:flex;flex-direction:column;gap:12px;margin-top:12px"><div class="grid">'+
+    '<div class="fld"><label for="a-season">Saison</label><select id="a-season">'+opts.map(function(s){return '<option>'+esc(s)+'</option>';}).join('')+'</select></div>'+
+    '<div class="fld"><label for="a-person">Abonné</label><select id="a-person">'+selOpts(who,false)+'</select></div>'+
+    '<div class="fld"><label for="a-amt">Montant payé (€)</label><input id="a-amt" type="number" inputmode="decimal" step="0.01" min="0" required></div>'+
+    '<div class="fld"><label for="a-ref">N° de commande</label><input id="a-ref" type="text"></div></div>'+
+    '<button type="submit" class="btn">Enregistrer l’abonnement</button></form></details>';
+  return h;
+}
+function checkView(){
+  var it=[],b=balance(),td=parisToday();
+  var days=function(d){var a=String(d).split('-').map(Number),c=td.split('-').map(Number);return Math.round((Date.UTC(c[0],c[1]-1,c[2])-Date.UTC(a[0],a[1]-1,a[2]))/864e5);};
+  if(b.un)it.push(b.un+' vente(s) sans vendeur renseigné.');
+  ventes.forEach(function(v){if(v.reglement==='attente'&&v.date&&days(v.date)>10)it.push('Règlement du club en attente depuis '+days(v.date)+' jours : '+esc(labelFmt(v.label)||'vente')+' ('+eur(netOf(v))+').');});
+  var debt=b.rows.filter(function(r){return r.bal>0.005;}),cred=b.rows.filter(function(r){return r.bal<-0.005;});
+  if(debt.length===1&&cred.length===1)it.push(esc(debt[0].n)+' doit encore '+eur(debt[0].bal)+' à '+esc(cred[0].n)+(transfers.length?'':' (aucun virement enregistré)')+'.');
+  if(!it.length)return '<section class="panel" aria-label="Contrôle"><p class="note">✓ Rien à vérifier : les données sont complètes.</p></section>';
+  return '<section class="panel" aria-labelledby="h-chk"><h2 id="h-chk">Données à vérifier</h2><ul class="note warn-n">'+it.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></section>';
+}
+function viewBar(){
+  return '<div class="vbar"><span class="muted">'+(fullView?'Vue complète : toutes les fonctions':'Vue simple : l’essentiel')+'</span><button type="button" class="btn ghost small" data-act="view" aria-pressed="'+fullView+'">'+(fullView?'Passer à la vue simple':'Passer à la vue complète')+'</button></div>';
+}
+
+function bilanView(){
+  var sea=seasonOf(parisToday()),today=parisToday();
+  var ms=matches.filter(function(m){return m&&m.date&&seasonOf(m.date)===sea;});
+  if(!ms.length)return '';
+  var played=ms.filter(function(m){return daysBetween(today,m.date)<0;}),coming=ms.length-played.length;
+  var c={vendue:0,pretee:0,gardee:0,nonvendue:0,autre:0};
+  played.forEach(function(m){if(c[m.status]!==undefined)c[m.status]++;else c.autre++;});
+  var sales=ventes.filter(function(v){return seasonOfSale(v)===sea;}),nets=sales.map(netOf);
+  var tot=nets.reduce(function(a,b){return a+b;},0),avg=nets.length?tot/nets.length:0,best=nets.length?Math.max.apply(null,nets):0;
+  var tried=c.vendue+c.nonvendue,rate=tried?Math.round(c.vendue/tried*100):null;
+  var delays=[];ms.forEach(function(m){if(m.status==='vendue'&&m.listedOn&&m.soldOn){var d=daysBetween(m.listedOn,m.soldOn);if(d>=0)delays.push(d);}});
+  var dl=delays.length?Math.round(delays.reduce(function(a,b){return a+b;},0)/delays.length*10)/10:null;
+  var abo=abos.filter(function(a){return a.season===sea;}).reduce(function(a,x){return a+(num(x.amount)||0);},0);
+  var n=Math.max(1,sellers().length),perP=tot/n,aboP=abos.filter(function(a){return a.season===sea;}).length?abo/abos.filter(function(a){return a.season===sea;}).length:0;
+  function li(l,v){return '<li><span>'+l+'</span><b>'+v+'</b></li>';}
+  var h='<section class="panel" aria-labelledby="h-bil"><h2 id="h-bil">Bilan de la saison '+esc(sea)+'</h2><ul class="tiers">'+
+    li('Matchs à domicile',ms.length+' ('+played.length+' joués, '+coming+' à venir)')+
+    li('Vendus',c.vendue+(rate!==null?' · '+rate+' % des matchs tentés':''))+
+    li('Non vendus / prêtés / gardés',c.nonvendue+' / '+c.pretee+' / '+c.gardee)+
+    (c.autre?li('Issue à renseigner',String(c.autre)):'')+
+    li('Net moyen par vente',nets.length?eur(avg):'—')+
+    li('Meilleure vente (net)',nets.length?eur(best):'—')+
+    (dl!==null?li('Délai moyen mise en vente → vente',dl+' j'):'')+
+    li('Net total / par personne',eur(tot)+' / '+eur(perP))+
+    (aboP?li('Reste à couvrir par personne',perP>=aboP?'Abonnement remboursé (+'+eur(perP-aboP)+')':eur(aboP-perP)):'')+
+    '</ul></section>';
+  return h;
+}
+
+function median(a){if(!a.length)return null;var b=a.slice().sort(function(x,y){return x-y;}),m=Math.floor(b.length/2);return b.length%2?b[m]:(b[m-1]+b[m])/2;}
+function avgOf(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function statsData(){
+  var rows=ventes.map(function(v){var m=v.matchId?matches.filter(function(x){return x.id===v.matchId;})[0]:null;return {v:v,m:m,gross:v.price,net:netOf(v)};}).filter(function(r){return r.gross>0;});
+  var gross=rows.map(function(r){return r.gross;}),nets=rows.map(function(r){return r.net;});
+  var we=rows.filter(function(r){return r.m&&r.m.weekend;}).map(function(r){return r.gross;}),wk=rows.filter(function(r){return r.m&&!r.m.weekend;}).map(function(r){return r.gross;});
+  var soldJ=[],openJ=[],listD=[];
+  matches.forEach(function(m){
+    if(m.status!=='vendue'||!m.date)return;
+    if(m.soldOn){var j=daysBetween(m.soldOn,m.date);if(j>=0)soldJ.push(j);}
+    if(m.openedOn){var o=daysBetween(m.openedOn,m.date);if(o>=0)openJ.push(o);}
+    if(m.listedOn&&m.soldOn){var d=daysBetween(m.listedOn,m.soldOn);if(d>=0)listD.push(d);}
+  });
+  return {n:rows.length,gross:gross,nets:nets,med:median(gross),min:gross.length?Math.min.apply(null,gross):null,max:gross.length?Math.max.apply(null,gross):null,avgNet:avgOf(nets),we:we,wk:wk,soldJ:soldJ,openJ:openJ,listD:listD};
+}
+function statsView(){
+  var S=statsData();
+  function li(l,v){return '<li><span>'+l+'</span><b>'+v+'</b></li>';}
+  function nb(a,u){return a.length?(Math.round(avgOf(a)*10)/10)+' '+u+' (sur '+a.length+')':'à venir : se remplit tout seul avec les prochaines ventes';}
+  var h='<section class="panel" aria-labelledby="h-stat"><h2 id="h-stat">Statistiques (base de prédiction)</h2><ul class="tiers">'+
+    li('Ventes analysées',String(S.n))+
+    li('Prix de vente de la paire (médiane)',S.med!=null?eur(S.med)+' · de '+eur(S.min)+' à '+eur(S.max):'—')+
+    (S.we.length&&S.wk.length?li('Week-end / semaine (moyenne)',eur(avgOf(S.we))+' / '+eur(avgOf(S.wk))):'')+
+    li('Vente avant le match',nb(S.soldJ,'jours'))+
+    li('Revente vue ouverte avant le match',nb(S.openJ,'jours'))+
+    li('Délai mise en vente → vente',nb(S.listD,'jours'))+
+    '</ul>';
+  if(S.n>=3)h+='<p class="note"><b>Estimation indicative du prix d’un prochain match : '+eur(S.med)+'</b> (médiane de '+S.n+' ventes). '+(S.n<10?'Peu de données : à prendre avec prudence, la fiabilité grandit avec les ventes.':'Basée sur un historique suffisant.')+'</p>';
+  else h+='<p class="note">Prédictions disponibles dès 3 ventes ; plus il y a de matchs, plus elles sont fiables. Les dates d’ouverture, de mise en vente et de vente sont enregistrées automatiquement quand tu utilises les boutons de l’appli.</p>';
+  return h+'</section>';
+}
+function financeSimple(){
+  var list=sortedVentes(),tot=list.reduce(function(a,v){return a+netOf(v);},0),b=balance(),rs=abos.map(roiOf);
+  var h='<section class="panel" aria-labelledby="h-fin"><h2 id="h-fin">En un coup d’œil</h2>'+
+    '<div class="kpis"><div><span class="cap">Net des reventes</span><b class="big">'+eur(tot)+'</b></div><div><span class="cap">Par personne</span><b class="big">'+eur(tot/Math.max(1,sellers().length))+'</b></div><div><span class="cap">Ventes</span><b class="big">'+list.length+'</b></div></div>';
+  var debt=b.rows.filter(function(r){return r.bal>0.005;}),cred=b.rows.filter(function(r){return r.bal<-0.005;});
+  var msg=!ventes.length?'Aucune vente pour l’instant.':(!debt.length?'Les comptes sont à jour.':(debt.length===1&&cred.length===1?'<b>'+esc(debt[0].n)+' doit '+eur(debt[0].bal)+' à '+esc(cred[0].n)+'.</b>':b.rows.map(function(r){return esc(r.n)+' : '+(r.bal>0?'doit '+eur(r.bal):r.bal<0?'doit recevoir '+eur(-r.bal):'à jour');}).join(' · ')));
+  h+='<p class="verdict">'+msg+'</p></section>';
+  h+=checkView();
+  h+=bilanView();
+  if(rs.length)h+='<section class="panel" aria-labelledby="h-roi"><h2 id="h-roi">Rentabilité de l’abonnement</h2><ul class="cmp">'+rs.map(function(R){var p=Math.min(100,R.pct);return '<li><span class="cmpl">'+esc(R.abo.season)+' · '+esc(R.abo.person)+'</span><span class="bar"><i class="'+(R.share>=R.abo.amount&&R.abo.amount>0?'ok':'')+'" style="width:'+p.toFixed(1)+'%"></i></span><b>'+Math.round(R.pct)+' %</b></li>';}).join('')+'</ul><p class="note">'+rs.map(function(R){return esc(R.abo.person)+' : '+eur(R.share)+' récupérés sur '+eur(R.abo.amount)+(R.left>0?' (reste '+eur(R.left)+')':' (abonnement remboursé)');}).join(' · ')+'</p></section>';
+  return h;
+}
+function financeView(){
+  if(!fullView)return financeSimple();
+  var list=sortedVentes();
+  var tot=list.reduce(function(a,v){a.brut+=v.price;a.fee+=v.fee;a.net+=netOf(v);return a;},{brut:0,fee:0,net:0});
+  var h='<section class="panel" aria-labelledby="h-fin"><h2 id="h-fin">Mes ventes</h2>'+
+    '<div class="kpis"><div><span class="cap">Net des reventes</span><b class="big">'+eur(tot.net)+'</b></div><div><span class="cap">Par personne</span><b class="big">'+eur(tot.net/2)+'</b></div><div><span class="cap">Ventes</span><b class="big">'+list.length+'</b></div></div>'+
+    '<button type="button" class="btn" data-act="export"'+(list.length?'':' disabled')+'>Exporter en Excel</button>'+
+    '<p class="note">Une vente = une paire de places. Le net est le prix de vente moins la commission du club ; « par personne » est la moitié du net. Saison du 1er août au 31 juillet (celle du match vendu), année fiscale = année civile de la date de vente.</p></section>';
+  h+=checkView();
+  h+=bilanView();
+  h+=roiView();
+  h+=statsView();
+  h+=balanceView();
+  var opts='<option value="">Autre / hors liste</option>'+matches.map(function(m){return '<option value="'+esc(m.id)+'">'+esc('PSG – '+m.opp+' ('+m.date+')')+'</option>';}).join('');
+  h+='<details class="panel set" data-key="addv"'+(openSet.has('addv')||!list.length?' open':'')+'><summary><span class="h2">Ajouter une vente</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<form id="vente-form" style="display:flex;flex-direction:column;gap:12px">'+
+    '<div class="fld"><label for="v-match">Match</label><select id="v-match">'+opts+'</select></div>'+
+    '<div class="fld"><label for="v-label">Libellé (si hors liste)</label><input id="v-label" type="text" placeholder="PSG – Lille"></div>'+
+    '<div class="grid"><div class="fld"><label for="v-date">Date de la vente</label><input id="v-date" type="date" value="'+parisToday()+'" required></div>'+
+    '<div class="fld"><label for="v-price">Prix de vente de la paire (€)</label><input id="v-price" type="number" inputmode="decimal" step="0.01" min="0" required></div>'+
+    '<div class="fld"><label for="v-fee">Commission du club (€)</label><input id="v-fee" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>'+
+    '<div class="fld"><label for="v-seller">Vendu par (a reçu l’argent)</label><select id="v-seller">'+selOpts(who,true)+'</select></div>'+
+    '<div class="fld"><label for="v-note">Note</label><input id="v-note" type="text"></div></div>'+
+    '<button type="submit" class="btn">Enregistrer la vente</button></form></details>';
+  h+='<details class="panel set" data-key="imp"'+(openSet.has('imp')?' open':'')+'><summary><span class="h2">Importer des ventes</span><span class="chev" aria-hidden="true"></span></summary>'+
+    '<p class="note">Colle une vente par ligne : <strong>date;libellé;prix de la paire;commission;n° de lot</strong> (par exemple 2026-09-12;PSG – Lyon;130,00;15,60;1765). Une vente déjà importée (même n° de lot) est ignorée.</p>'+
+    '<div class="fld" style="margin-top:12px"><label for="imp-seller">Vendeur des ventes importées</label><select id="imp-seller">'+selOpts(who,true)+'</select></div>'+
+    '<div class="fld" style="margin-top:12px"><label for="imp-text">Lignes à importer</label><textarea id="imp-text" rows="6" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:14px var(--f-body)"></textarea></div>'+
+    '<button type="button" class="btn" data-act="import" style="margin-top:12px">Importer</button></details>';
+  h+=sumTable('Par saison',groupBy(list,seasonOfSale),'Saison')+sumTable('Par année fiscale',groupBy(list,function(v){return fiscalOf(v.date);}),'Année');
+  if(list.length){
+    h+='<section class="panel" aria-labelledby="h-det"><h2 id="h-det">Détail des ventes</h2><div class="vlist">'+list.map(function(v){
+      function f(label,field,val,type){return '<div class="fld"><label for="vf-'+field+'-'+esc(v.id)+'">'+label+'</label><input id="vf-'+field+'-'+esc(v.id)+'"'+(lockedVente(v,field)?' disabled':'')+' type="'+type+'" '+(type==='number'?'inputmode="decimal" step="0.01" min="0" ':'')+'data-vf="'+field+'" data-vid="'+esc(v.id)+'" value="'+esc(val==null?'':val)+'"></div>';}
+      var vl=v.source==='billetterie';
+      return '<details class="vrow'+(vl?' vlocked':'')+'" data-key="vd-'+esc(v.id)+'"'+(openSet.has('vd-'+v.id)?' open':'')+'><summary class="vsum"><div class="vhead"><b>'+(vl?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span> ':'')+esc(labelFmt(v.label)||'Vente')+'</b><span class="muted">'+esc(seasonOfSale(v))+' · net '+eur(netOf(v))+'</span>'+
+        '<span class="src '+(v.source==='billetterie'?'bil':'man')+'">'+esc(srcLabel(v))+'</span>'+
+        '<span class="muted">Vendu par (a reçu le virement) : <b>'+esc(sellerLabel(v))+'</b></span>'+
+        '<span class="src '+(v.reglement==='attente'?'man':'bil')+'">'+(v.reglement==='attente'?'Règlement du club en attente':'Règlement versé')+'</span></div><span class="chev" aria-hidden="true"></span></summary>'+
+        '<div class="grid">'+f('Date','date',v.date,'date')+f('Prix (€)','price',v.price,'number')+f('Commission (€)','fee',v.fee,'number')+f('Libellé','label',v.label,'text')+
+          '<div class="fld"><label for="vf-seller-'+esc(v.id)+'">Vendu par</label><select id="vf-seller-'+esc(v.id)+'"'+(lockedVente(v,'seller')?' disabled':'')+' data-vf="seller" data-vid="'+esc(v.id)+'">'+selOpts(v.seller,true)+'</select></div>'+
+          '<div class="fld"><label for="vf-reglement-'+esc(v.id)+'">Règlement du club</label><select id="vf-reglement-'+esc(v.id)+'" data-vf="reglement" data-vid="'+esc(v.id)+'"><option value="verse"'+(v.reglement!=='attente'?' selected':'')+'>Versé</option><option value="attente"'+(v.reglement==='attente'?' selected':'')+'>En attente</option></select></div></div>'+
+        (vl?'<p class="note">Verrouillé : montants et vendeur récupérés depuis la billetterie. Seul le statut du règlement reste modifiable.</p>':'<button type="button" class="btn ghost small" data-act="delvente" data-id="'+esc(v.id)+'">Supprimer cette vente</button>')+'</details>';
+    }).join('')+'</div></section>';
+  }
+  return h;
+}
+async function importVentes(text){
+  var lines=String(text||'').split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean);
+  var o={},bad=0,dup=0;
+  lines.forEach(function(l){
+    var c=l.split(';').map(function(x){return x.trim();});
+    if(c.length<4||!/^\d{4}-\d{2}-\d{2}$/.test(c[0])){bad++;return;}
+    var lot=c[4]||'';var id=lot?('vlot'+lot.replace(/\W/g,'')):('v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
+    if(ventes.some(function(v){return v.id===id;})||o[id]){dup++;return;}
+    o[id]={date:c[0],label:c[1],matchId:autoMatchId(c[0],c[1]),price:num(c[2])||0,fee:num(c[3])||0,note:lot?('Lot '+lot):'',by:who,seller:(document.getElementById('imp-seller')||{}).value||'',sellerSrc:'manuel',sellerBy:who,reglement:'verse',source:lot?'billetterie':'manuel'};
+  });
+  var ids=Object.keys(o);
+  if(!ids.length){toast(bad?'Aucune ligne valide (format : date;libellé;prix;commission;lot).':'Rien de nouveau à importer.');return;}
+  ids.forEach(function(k){var r=o[k];r.id=k;ventes.push(r);});
+  openSet.delete('imp');render();
+  try{await vref().set({v:o},{merge:true});toast(ids.length+' vente(s) importée(s)'+(dup?', '+dup+' déjà présente(s)':'')+(bad?', '+bad+' ligne(s) ignorée(s)':'')+'.');}
+  catch(e){if(isAuthError(e)){await logout();return;}toast('Import impossible : '+(e.message||e.code));await refresh();}
+}
+async function saveVente(rec){
+  var o={};o[rec.id]=rec;
+  var i=ventes.findIndex(function(x){return x.id===rec.id;});if(i>=0)ventes[i]=rec;else ventes.push(rec);
+  render();
+  try{await vref().set({v:o},{merge:true});}
+  catch(e){if(isAuthError(e)){await logout();return;}toast('Enregistrement impossible : '+(e.message||e.code));await refresh();}
+}
+function newSale(d){
+  var rec={id:'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),date:d.date,label:d.label||'',matchId:d.matchId||autoMatchId(d.date,d.label)||null,price:num(d.price)||0,fee:num(d.fee)||0,note:d.note||'',by:who,seller:d.seller===undefined?who:d.seller,sellerSrc:'manuel',sellerBy:who,reglement:'verse',source:d.source||'manuel'};
+  return saveVente(rec);
+}
+function ensureSale(m){
+  if(ventes.some(function(v){return isSaleOf(v,m);}))return;
+  newSale({date:parisToday(),label:'PSG – '+m.opp,matchId:m.id,price:m.listed||0,fee:0});
+  toast('Vente ajoutée aux finances (vendeur : '+who+') : vérifie le vendeur, le montant et la commission.');
+}
+async function deleteVente(id){
+  ventes=ventes.filter(function(x){return x.id!==id;});render();
+  try{await vref().update('v.'+id,firebase.firestore.FieldValue.delete());}
+  catch(e){if(isAuthError(e)){await logout();return;}toast('Suppression impossible : '+(e.message||e.code));await refresh();}
+}
+function exportXlsx(){
+  if(!window.XLSX){toast('Export indisponible : bibliothèque non chargée.');return;}
+  var X=window.XLSX,list=sortedVentes().slice().reverse();
+  var EUR='#,##0.00 "€"';
+  var ws={},n=list.length,last=n+1;
+  var head=['Date','Match','Saison','Année fiscale','Prix de vente (paire)','Commission','Net perçu','Par personne','Saisi par','Note','Vendu par (a encaissé)','Origine','Origine du vendeur','Règlement du club'];
+  head.forEach(function(h,c){ws[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+  list.forEach(function(v,i){
+    var r=i+1,R=r+1,d=new Date(v.date+'T00:00:00Z');
+    function put(c,cell){ws[X.utils.encode_cell({r:r,c:c})]=cell;}
+    put(0,{t:'d',v:d,z:'dd/mm/yyyy'});put(1,{t:'s',v:labelFmt(v.label)});put(2,{t:'s',v:seasonOfSale(v)});put(3,{t:'s',v:fiscalOf(v.date)});
+    put(4,{t:'n',v:v.price,z:EUR});put(5,{t:'n',v:v.fee,z:EUR});
+    put(6,{t:'n',v:netOf(v),f:'E'+R+'-F'+R,z:EUR});put(7,{t:'n',v:netOf(v)/2,f:'G'+R+'/2',z:EUR});
+    put(8,{t:'s',v:v.by||''});put(9,{t:'s',v:v.note||''});put(10,{t:'s',v:v.seller||''});put(12,{t:'s',v:v.sellerSrc==='billetterie'?'Billetterie (titulaire du compte bancaire)':('Saisi à la main'+(v.sellerBy?' par '+v.sellerBy:''))});put(13,{t:'s',v:v.reglement==='attente'?'En attente':'Versé'});put(11,{t:'s',v:v.source==='billetterie'?'Billetterie'+(v.edited?' (modifiée par '+v.edited+')':''):'Saisie manuelle'});
+  });
+  var tr=n+1,TR=tr+1,tot={p:0,f:0,n:0};list.forEach(function(v){tot.p+=v.price;tot.f+=v.fee;tot.n+=netOf(v);});
+  if(n){
+    ws[X.utils.encode_cell({r:tr,c:1})]={t:'s',v:'TOTAL'};
+    [['E',4,tot.p],['F',5,tot.f],['G',6,tot.n],['H',7,tot.n/2]].forEach(function(a){ws[X.utils.encode_cell({r:tr,c:a[1]})]={t:'n',v:a[2],f:'SUM('+a[0]+'2:'+a[0]+last+')',z:EUR};});
+  }
+  ws['!ref']='A1:N'+(n?TR:1);
+  ws['!cols']=[{wch:12},{wch:30},{wch:10},{wch:13},{wch:20},{wch:13},{wch:13},{wch:14},{wch:12},{wch:30},{wch:22},{wch:30},{wch:36},{wch:18}];
+  ws['!autofilter']={ref:'A1:N'+(n?last:1)};
+  function summary(groups,col,keyHead){
+    var s={},hd=[keyHead,'Nombre de ventes','Brut','Commission','Net perçu','Par personne'];
+    hd.forEach(function(h,c){s[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+    groups.forEach(function(g,i){
+      var r=i+1,R=r+1,rng=function(L){return 'Ventes!$'+L+'$2:$'+L+'$'+Math.max(last,2);};
+      function put(c,cell){s[X.utils.encode_cell({r:r,c:c})]=cell;}
+      put(0,{t:'s',v:g.k});
+      put(1,{t:'n',v:g.n,f:'COUNTIF('+rng(col)+',A'+R+')'});
+      put(2,{t:'n',v:g.brut,f:'SUMIF('+rng(col)+',A'+R+','+rng('E')+')',z:EUR});
+      put(3,{t:'n',v:g.fee,f:'SUMIF('+rng(col)+',A'+R+','+rng('F')+')',z:EUR});
+      put(4,{t:'n',v:g.net,f:'C'+R+'-D'+R,z:EUR});
+      put(5,{t:'n',v:g.net/2,f:'E'+R+'/2',z:EUR});
     });
+    var gl=groups.length,t=gl+1,T=t+1;
+    if(gl){
+      s[X.utils.encode_cell({r:t,c:0})]={t:'s',v:'TOTAL'};
+      var sums=groups.reduce(function(a,g){a[0]+=g.n;a[1]+=g.brut;a[2]+=g.fee;a[3]+=g.net;return a;},[0,0,0,0]);
+      [['B',1,sums[0],0],['C',2,sums[1],1],['D',3,sums[2],1],['E',4,sums[3],1]].forEach(function(a){s[X.utils.encode_cell({r:t,c:a[1]})]={t:'n',v:a[2],f:'SUM('+a[0]+'2:'+a[0]+(gl+1)+')',z:a[3]?EUR:undefined};});
+      s[X.utils.encode_cell({r:t,c:5})]={t:'n',v:sums[3]/2,f:'E'+T+'/2',z:EUR};
+    }
+    s['!ref']='A1:F'+(gl?gl+2:1);s['!cols']=[{wch:14},{wch:18},{wch:14},{wch:14},{wch:14},{wch:14}];
+    return s;
+  }
+  var wb=X.utils.book_new();
+  X.utils.book_append_sheet(wb,ws,'Ventes');
+  X.utils.book_append_sheet(wb,summary(groupBy(list,seasonOfSale).reverse(),'C','Saison'),'Par saison');
+  X.utils.book_append_sheet(wb,summary(groupBy(list,function(v){return fiscalOf(v.date);}).reverse(),'D','Année fiscale'),'Par année fiscale');
+  (function(){
+    var us=sellers(),b=balance(),tl=transfers.slice().reverse(),tn=tl.length,tlast=Math.max(tn+1,2),ub=us.length;
+    var tv={};['Date','De','Vers','Montant','Note','Saisi par'].forEach(function(h,c){tv[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+    tl.forEach(function(t,i){var r=i+1;tv[X.utils.encode_cell({r:r,c:0})]={t:'d',v:new Date(t.date+'T00:00:00Z'),z:'dd/mm/yyyy'};tv[X.utils.encode_cell({r:r,c:1})]={t:'s',v:t.from};tv[X.utils.encode_cell({r:r,c:2})]={t:'s',v:t.to};tv[X.utils.encode_cell({r:r,c:3})]={t:'n',v:t.amount,z:EUR};tv[X.utils.encode_cell({r:r,c:4})]={t:'s',v:t.note||''};tv[X.utils.encode_cell({r:r,c:5})]={t:'s',v:t.by||''};});
+    tv['!ref']='A1:F'+(tn?tn+1:1);tv['!cols']=[{wch:12},{wch:12},{wch:12},{wch:13},{wch:30},{wch:12}];
+    var dc={};['Personne','Net vendu','Dont règlement en attente','Part de chacun','Virements faits','Virements reçus','Solde (positif = doit)'].forEach(function(h,c){dc[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+    var vr=function(L){return 'Ventes!$'+L+'$2:$'+L+'$'+Math.max(last,2);},tr_=function(L){return 'Virements!$'+L+'$2:$'+L+'$'+tlast;};
+    b.rows.forEach(function(r,i){var R=i+2;function p(c,cell){dc[X.utils.encode_cell({r:i+1,c:c})]=cell;}
+      p(0,{t:'s',v:r.n});
+      p(1,{t:'n',v:r.enc,f:'SUMIF('+vr('K')+',A'+R+','+vr('G')+')',z:EUR});
+      p(2,{t:'n',v:r.pend,f:'SUMIFS('+vr('G')+','+vr('K')+',A'+R+','+vr('N')+',"En attente")',z:EUR});
+      p(3,{t:'n',v:b.fair,f:'SUM($B$2:$B$'+(ub+1)+')/'+ub,z:EUR});
+      p(4,{t:'n',v:r.out,f:'SUMIF('+tr_('B')+',A'+R+','+tr_('D')+')',z:EUR});
+      p(5,{t:'n',v:r.inn,f:'SUMIF('+tr_('C')+',A'+R+','+tr_('D')+')',z:EUR});
+      p(6,{t:'n',v:r.bal,f:'B'+R+'-E'+R+'+F'+R+'-D'+R,z:EUR});});
+    var TT=ub+3;dc[X.utils.encode_cell({r:ub+1,c:0})]={t:'s',v:'TOTAL'};
+    dc[X.utils.encode_cell({r:ub+1,c:1})]={t:'n',v:b.tot,f:'SUM(B2:B'+(ub+1)+')',z:EUR};
+    dc[X.utils.encode_cell({r:ub+1,c:2})]={t:'n',v:b.pend,f:'SUM(C2:C'+(ub+1)+')',z:EUR};
+    dc['!ref']='A1:G'+(ub+2);dc['!cols']=[{wch:14},{wch:14},{wch:24},{wch:16},{wch:16},{wch:16},{wch:22}];
+    X.utils.book_append_sheet(wb,dc,'Décompte');X.utils.book_append_sheet(wb,tv,'Virements');
+    var rr=abos.map(roiOf),ro={};['Saison','Abonné','Abonnement payé','Net revendu (saison)','Part revendue','Reste à rembourser','Taux de remboursement','Origine','N° de commande'].forEach(function(h,c){ro[X.utils.encode_cell({r:0,c:c})]={t:'s',v:h};});
+    rr.forEach(function(R,i){var r=i+1,RW=i+2;function p(c,cell){ro[X.utils.encode_cell({r:r,c:c})]=cell;}
+      p(0,{t:'s',v:R.abo.season});p(1,{t:'s',v:R.abo.person});p(2,{t:'n',v:R.abo.amount,z:EUR});
+      p(3,{t:'n',v:R.net,f:'SUMIF('+vr('C')+',A'+RW+','+vr('G')+')',z:EUR});
+      p(4,{t:'n',v:R.share,f:'D'+RW+'/'+R.n,z:EUR});
+      p(5,{t:'n',v:R.abo.amount-R.share,f:'C'+RW+'-E'+RW,z:EUR});
+      p(6,{t:'n',v:R.abo.amount?R.share/R.abo.amount:0,f:'IF(C'+RW+'>0,E'+RW+'/C'+RW+',0)',z:'0%'});
+      p(7,{t:'s',v:R.abo.source==='billetterie'?'Billetterie':'Saisie manuelle'});p(8,{t:'s',v:R.abo.ref||''});});
+    ro['!ref']='A1:I'+(rr.length+1);ro['!cols']=[{wch:10},{wch:12},{wch:16},{wch:18},{wch:14},{wch:18},{wch:20},{wch:16},{wch:14}];
+    X.utils.book_append_sheet(wb,ro,'Rentabilité');
+  })();
+  X.writeFile(wb,'revente-psg-ventes-'+parisToday()+'.xlsx',{cellDates:true});
+  toast('Fichier Excel généré.');
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.hidden=true;},3500);
+}
+function copyText(v){
+  try{navigator.clipboard.writeText(String(v)).then(function(){toast('Prix copié : '+v+' €');},function(){toast('Copie impossible. Prix : '+v+' €');});}
+  catch(e){toast('Copie impossible. Prix : '+v+' €');}
+}
+
+/* ---------- données (Firestore) ---------- */
+var SEED=[['m01','Roma','2026-11-25',null,false,'LDC','vendue',598],['m02','Lorient','2026-11-28',null,false,'L1','vendue',250],['m03','Paris FC','2026-12-12',null,false,'L1','vendue',300],
+['m04','Auxerre','2027-01-23',null,false,'L1','vendue',220],['m05','Galatasaray','2027-01-27',null,false,'LDC','enligne',598],['m06','Marseille','2027-02-07',null,false,'L1','vendue',598],
+['m07','Rennes','2027-03-07',null,false,'L1','vendue',258]];
+
+function aref(){return db.collection('revente_config').doc('abonnements');}
+function vref(){return db.collection('revente_config').doc('ventes');}
+function mref(){return db.collection('revente_matches');}
+function cref(){return db.collection('revente_config').doc('main');}
+function isAuthError(e){return !!e&&(e.code==='permission-denied'||e.code==='unauthenticated');}
+async function seedIfEmpty(){
+  var s=await mref().limit(1).get();
+  if(!s.empty)return;
+  var b=db.batch();
+  SEED.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i+1,opp:m[1],date:m[2],time:m[3],weekend:m[4],comp:m[5]||'',status:m[6]||'attente',paid:null,floor:null,listed:m[7]==null?null:m[7],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
+  await b.commit();
+}
+var PAST=[['p01','Monaco','2026-09-04',null,'L1',300],['p02','Le Mans','2026-10-10',null,'L1',232],['p03','Barcelone','2026-10-20',null,'LDC',998],['p04','Lyon','2026-10-26',null,'L1',398],['p05','Troyes','2026-11-07',null,'L1',220]];
+async function seedPastIfMissing(){
+  var s=await mref().doc('p01').get();
+  if(s.exists)return;
+  var b=db.batch();
+  PAST.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i-PAST.length,opp:m[1],date:m[2],time:m[3],weekend:false,comp:m[4]||'',status:'vendue',paid:null,floor:null,listed:m[5]==null?null:m[5],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
+  await b.commit();
+}
+async function reload(){
+  var a=await mref().orderBy('order').get();
+  var c=await cref().get();
+  matches=a.docs.map(function(d){var r=d.data();r.id=d.id;r.paid=num(r.paid);r.floor=num(r.floor);r.listed=num(r.listed);return r;});
+  cfg=Object.assign({},DEF,c.exists?c.data():{});
+  var vd=await vref().get();var vm=(vd.exists&&vd.data().v)||{};
+  ventes=Object.keys(vm).map(function(k){var r=vm[k];r.id=k;r.price=num(r.price)||0;r.fee=num(r.fee)||0;
+    if(!r.source)r.source=/^vlot/.test(k)?'billetterie':'manuel';
+    if(r.seller===undefined)r.seller='';
+    if(!r.sellerSrc)r.sellerSrc=r.seller&&/^vlot/.test(k)?'billetterie':'manuel';
+    if(!r.reglement)r.reglement='verse';
+    return r;});
+  try{var ad=await aref().get();var am=(ad.exists&&ad.data().a)||{};
+    abos=Object.keys(am).map(function(k){var r=am[k];r.id=k;r.amount=num(r.amount)||0;return r;}).sort(function(x,y){return String(y.season).localeCompare(String(x.season))||String(x.person).localeCompare(String(y.person));});
+  }catch(e){abos=[];}
+  var tm=(vd.exists&&vd.data().t)||{};
+  transfers=Object.keys(tm).map(function(k){var r=tm[k];r.id=k;r.amount=num(r.amount)||0;return r;}).sort(function(x,y){return String(y.date).localeCompare(String(x.date));});
+  var mig={},nm=0;
+  ventes.forEach(function(x){var raw=vm[x.id]||{};if(raw.source===undefined||raw.seller===undefined||raw.sellerSrc===undefined||raw.reglement===undefined){mig[x.id]={source:x.source,seller:x.seller,sellerSrc:x.sellerSrc,reglement:x.reglement};nm++;}});
+  if(nm){try{await vref().set({v:mig},{merge:true});}catch(e){}}
+}
+function isTyping(){var a=document.activeElement;return !!(a&&a.tagName==='INPUT'&&app.contains(a));}
+async function refresh(){
+  if(state!=='ok')return;
+  if(isTyping()){pending=true;return;}
+  try{await reload();syncErr=false;render();}
+  catch(e){if(isAuthError(e)){await logout();return;}syncErr=true;render();}
+}
+function startSync(){
+  stopSync();
+  unsubs=[mref().onSnapshot(onRemote,onSyncErr),cref().onSnapshot(onRemote,onSyncErr)];
+  pollTimer=setInterval(refresh,45000);
+}
+function stopSync(){
+  clearInterval(pollTimer);pollTimer=null;
+  unsubs.forEach(function(u){try{u();}catch(e){}});unsubs=[];
+}
+function onSyncErr(e){if(e&&isAuthError(e))return;if(!syncErr){syncErr=true;if(!isTyping())render();}}
+function onRemote(){clearTimeout(debounce);debounce=setTimeout(refresh,400);}
+
+async function startApp(){
+  state='loading';render();
+  try{await seedIfEmpty();await seedPastIfMissing();await reload();state='ok';render();startSync();}
+  catch(e){
+    if(isAuthError(e)){
+      state='error';
+      errMsg='Accès refusé par Firestore : les règles de sécurité ne sont pas encore à jour (voir LISEZMOI.md, étape 3), ou le compte commun n’existe pas.';
+      render();return;
+    }
+    state='error';errMsg='Détail : '+((e&&e.message)||'erreur inconnue');render();
+  }
+}
+async function afterLogin(){
+  await startApp();
+  psgNotify();
+  psgUpdateManifest();
+}
+function psgNotify(){
+  if(!('Notification' in window)||!('serviceWorker' in navigator))return;
+  var isStandalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||('standalone' in navigator&&navigator.standalone);
+  if(!isStandalone)return;
+  var today=new Date();today.setHours(0,0,0,0);
+  var in7=new Date(today.getTime()+7*24*60*60*1000);
+  var soon=matches.filter(function(m){
+    if(!m.date)return false;
+    var d=new Date(m.date+'T12:00:00');
+    return d>=today&&d<=in7&&m.status!=='vendue'&&m.status!=='nonvendue';
   });
-}
-
-/* ---------- Personnes ---------- */
-function nom(p) { return (S.main && S.main.noms && S.main.noms[p]) || p; }
-function moi() {
-  if (!S.main || !S.main.emails || !S.user) return null;
-  var e = (S.user.email || '').toLowerCase();
-  return S.main.emails.p1 === e ? 'p1' : (S.main.emails.p2 === e ? 'p2' : null);
-}
-function persOpts(cur) { return opts({ p1: nom('p1'), p2: nom('p2') }, cur); }
-
-/* ---------- Prix conseillé ---------- */
-function prixConseille(m) {
-  if (!m.prixDepart || !m.date) return null;
-  var j = joursAvant(m.date);
-  if (j < 0) return null;
-  var g = (S.main && S.main.grille) || GRILLE_DEFAUT;
-  var f = 0;
-  if (j <= 1) f = g.j1; else if (j <= 3) f = g.j3; else if (j <= 7) f = g.j7;
-  return Math.round(m.prixDepart * (1 - f));
-}
-
-/* ---------- Rendu ---------- */
-var app = $('app');
-
-function render(force) {
-  var a = document.activeElement;
-  if (!force && a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && app.contains(a)) { pending = true; return; }
-  pending = false;
-  if (!S.user) { app.innerHTML = vueLogin(); return; }
-  if (S.main === undefined) { app.innerHTML = entete() + '<main><p class="muted">Chargement des données…</p>' + msg() + '</main>'; return; }
-  if (S.main === null) { app.innerHTML = entete() + '<main>' + vueConfigInitiale() + '</main>'; return; }
-  var corps = S.tab === 'ventes' ? vueVentes() : (S.tab === 'reglages' ? vueReglages() : vueMatchs());
-  app.innerHTML = entete() + nav() + '<main>' + msg() + corps + '</main>';
-}
-function msg() {
-  return (S.erreur ? '<p class="err">' + esc(S.erreur) + '</p>' : '') + (S.info ? '<p class="ok">' + esc(S.info) + '</p>' : '');
-}
-function entete() {
-  var p = moi();
-  return '<header><h1>Revente PSG</h1><span class="qui">' + esc(p ? nom(p) : (S.user ? S.user.email : '')) +
-    ' · <a href="#" data-a="logout" style="color:#fff">Quitter</a></span></header>';
-}
-function nav() {
-  function b(k, l) { return '<button data-a="tab" data-k="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + l + '</button>'; }
-  return '<nav>' + b('matchs', 'Matchs') + b('ventes', 'Ventes') + b('reglages', 'Réglages') + '</nav>';
-}
-
-function vueLogin() {
-  return '<div class="login card"><h1 style="margin-top:0">Revente PSG</h1>' +
-    '<form data-form="login"><label>Adresse e-mail<input id="l-mail" type="email" autocomplete="username" required></label>' +
-    '<label style="margin-top:8px">Mot de passe<input id="l-pass" type="password" autocomplete="current-password" required></label>' +
-    (S.erreur ? '<p class="err">' + esc(S.erreur) + '</p>' : '') +
-    '<p><button type="submit">Se connecter</button></p></form></div>';
-}
-
-function vueConfigInitiale() {
-  return '<div class="card"><h2 style="margin-top:0">Configuration initiale</h2>' +
-    '<p class="muted">Première utilisation : indique les deux personnes. Ces informations restent dans la base privée, jamais dans le code public. La personne 1 est celle qui encaisse l\'historique importé.</p>' +
-    '<form data-form="setup">' +
-    '<div class="row"><label>Prénom personne 1<input id="s-n1" required></label><label>E-mail de connexion personne 1<input id="s-e1" type="email" required></label></div>' +
-    '<div class="row"><label>Prénom personne 2<input id="s-n2" required></label><label>E-mail de connexion personne 2<input id="s-e2" type="email" required></label></div>' +
-    msg() + '<p><button type="submit">Enregistrer</button></p></form></div>';
-}
-
-function saisons() {
-  var set = {};
-  S.matches.forEach(function (m) { if (m.date) set[saisonDe(m.date)] = 1; });
-  var cur = saisonDe(new Date());
-  set[cur] = 1;
-  return Object.keys(set).sort();
-}
-function saisonCourante() { return S.saison || saisonDe(new Date()); }
-function selSaison() {
-  var o = {}; saisons().forEach(function (s) { o[s] = 'Saison ' + s; });
-  return '<label>Saison<select data-ch="saison">' + opts(o, saisonCourante()) + '</select></label>';
-}
-
-/* ----- Matchs ----- */
-function vueMatchs() {
-  var sais = saisonCourante();
-  var auj = new Date(); auj.setHours(0, 0, 0, 0);
-  var liste = S.matches.filter(function (m) { return m.date && saisonDe(m.date) === sais; })
-    .sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
-  var avenir = liste.filter(function (m) { return new Date(m.date) >= auj; });
-  var passes = liste.filter(function (m) { return new Date(m.date) < auj; });
-  var h = '<div class="row">' + selSaison() +
-    '<button data-a="form-match">+ Ajouter un match</button></div>';
-  if (S.form && S.form.type === 'match') h += formMatch();
-  h += '<h2>À venir (' + avenir.length + ')</h2>';
-  h += avenir.length ? avenir.map(carteMatch).join('') : '<p class="muted">Aucun match à venir pour cette saison. Ajoute-les avec « + Ajouter un match ».</p>';
-  h += '<p><button class="sec" data-a="passes">' + (S.passes ? 'Masquer' : 'Afficher') + ' les matchs passés (' + passes.length + ')</button></p>';
-  if (S.passes) h += passes.map(carteMatch).join('');
-  return h;
-}
-function formMatch() {
-  return '<div class="card"><form data-form="match"><h2 style="margin-top:0">Nouveau match à domicile</h2>' +
-    '<div class="row"><label>Adversaire<input id="m-adv" required></label><label>Compétition<input id="m-comp" placeholder="Ligue 1, Ligue des champions…"></label></div>' +
-    '<div class="row"><label>Date et heure<input id="m-date" type="datetime-local" required></label><label>Prix de départ de la paire (€)<input id="m-prix" type="number" min="0" step="1"></label></div>' +
-    '<p><button type="submit">Ajouter</button> <button type="button" class="sec" data-a="annuler">Annuler</button></p></form></div>';
-}
-function carteMatch(m) {
-  var pc = prixConseille(m);
-  var h = '<div class="card"><div class="row" style="margin-top:0"><strong>PSG – ' + esc(m.adversaire) + '</strong>' +
-    '<span class="muted">' + esc(fmtDate(m.date)) + '</span></div>' +
-    '<div class="muted">' + esc(m.competition || '') + '</div>' +
-    '<div class="row"><label>Statut<select data-ch="statut" data-id="' + esc(m.id) + '">' + opts(STATUTS, m.statut) + '</select></label>' +
-    '<label>Prix de départ de la paire (€)<input type="number" inputmode="decimal" min="0" step="1" value="' + esc(m.prixDepart || '') + '" data-ch="prix" data-id="' + esc(m.id) + '"></label></div>';
-  if (pc != null && (m.statut === 'pas_ouverte' || m.statut === 'ouverte' || m.statut === 'en_vente')) {
-    h += '<div class="hint">Prix conseillé aujourd\'hui : <strong>' + eur(pc) + '</strong> la paire</div>';
+  if(!soon.length)return;
+  if(Notification.permission==='granted'){
+    _psgSendNotify(soon);
+  }else if(Notification.permission==='default'){
+    Notification.requestPermission().then(function(p){
+      if(p==='granted')_psgSendNotify(soon);
+    });
   }
-  if (S.form && S.form.type === 'vente' && S.form.matchId === m.id) h += formVente(m);
-  else h += '<div class="row"><button data-a="form-vente" data-id="' + esc(m.id) + '">Vendue ?</button></div>';
-  return h + '</div>';
 }
-function formVente(m) {
-  var def = m.prixDepart || '';
-  var com = def ? r2(def * (S.main.commission != null ? S.main.commission : CFG.commissionRate)) : '';
-  return '<form data-form="vente" data-id="' + esc(m.id) + '" class="hint">' +
-    '<div class="row"><label>Prix total de la vente, avant commission (€)<input id="v-prix" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(def) + '" required></label>' +
-    '<label>Commission du club (€)<input id="v-com" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(com) + '" required></label></div>' +
-    '<div class="row"><label>Nombre de places<select id="v-pl"><option>2</option><option>1</option></select></label>' +
-    '<label>Encaissé par<select id="v-enc">' + persOpts(moi() || 'p1') + '</select></label>' +
-    '<label>Règlement du club<select id="v-reg">' + opts(REGLEMENT, 'attente') + '</select></label></div>' +
-    '<p><button type="submit">Enregistrer la vente</button> <button type="button" class="sec" data-a="annuler">Annuler</button></p></form>';
+function _psgSendNotify(soon){
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.active&&reg.active.postMessage({type:'PSG_NOTIFY',matches:soon});
+  }).catch(function(){});
 }
-
-/* ----- Ventes ----- */
-function vueVentes() {
-  var sais = saisonCourante();
-  var parMatch = {}; S.matches.forEach(function (m) { parMatch[m.id] = m; });
-  var lignes = S.ventes.v.filter(function (x) {
-    var m = parMatch[x.matchId]; return m && m.date && saisonDe(m.date) === sais;
-  }).sort(function (a, b) { return new Date(parMatch[a.matchId].date) - new Date(parMatch[b.matchId].date); });
-  var tot = { prix: 0, com: 0, net: 0, verse: 0, attente: 0 };
-  lignes.forEach(function (x) {
-    tot.prix += x.prix; tot.com += x.commission; tot.net += x.net;
-    if (x.reglementClub === 'verse') tot.verse += x.net; else tot.attente += x.net;
-  });
-  var h = '<div class="row">' + selSaison() + '</div>';
-  if (!lignes.length) return h + '<p class="muted">Aucune vente enregistrée pour cette saison.</p>';
-  h += '<div class="card scroll"><table><thead><tr><th>Match</th><th class="n">Prix</th><th class="n">Comm.</th><th class="n">Net</th><th>Encaissé</th><th>Club</th><th></th></tr></thead><tbody>';
-  lignes.forEach(function (x) {
-    var m = parMatch[x.matchId];
-    h += '<tr><td>' + esc(m.adversaire) + '<br><span class="muted">' + esc(fmtDate(m.date)) + ' · ' + esc(x.places) + ' pl.</span></td>' +
-      '<td class="n">' + eur(x.prix) + '</td><td class="n">' + eur(x.commission) + '</td><td class="n">' + eur(x.net) + '</td>' +
-      '<td>' + esc(nom(x.encaissePar)) + '</td>' +
-      '<td><select data-ch="reglement" data-vid="' + esc(x.id) + '">' + opts(REGLEMENT, x.reglementClub) + '</select></td>' +
-      '<td><button class="danger" data-a="suppr-vente" data-vid="' + esc(x.id) + '">Suppr.</button></td></tr>';
-  });
-  h += '</tbody><tfoot><tr><th>Total</th><th class="n">' + eur(tot.prix) + '</th><th class="n">' + eur(tot.com) + '</th><th class="n">' + eur(tot.net) + '</th><th colspan="3"></th></tr></tfoot></table></div>';
-  h += '<p class="muted">Net versé par le club : <strong>' + eur(tot.verse) + '</strong> · en attente : <strong>' + eur(tot.attente) + '</strong></p>';
-  return h;
+function psgUpdateManifest(){
+  try{
+    var today=new Date();today.setHours(0,0,0,0);
+    var upcoming=matches.filter(function(m){
+      if(!m.date)return false;
+      var d=new Date(m.date+'T12:00:00');
+      return d>=today&&m.status!=='vendue'&&m.status!=='nonvendue';
+    }).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).slice(0,2);
+    var shortcuts=upcoming.map(function(m){
+      var d=new Date(m.date+'T12:00:00');
+      var label=d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+      return {name:m.opp+' · '+label,short_name:m.opp,url:'/revente-psg/',icons:[{src:'/revente-psg/icons/icon-192.png',sizes:'192x192'}]};
+    });
+    if(!shortcuts.length){
+      shortcuts=[{name:'Matchs à venir',short_name:'Matchs',url:'/revente-psg/',icons:[{src:'/revente-psg/icons/icon-192.png',sizes:'192x192'}]},{name:'Finances',short_name:'Finances',url:'/revente-psg/#finances',icons:[{src:'/revente-psg/icons/icon-192.png',sizes:'192x192'}]}];
+    }
+    var manifest={name:'Revente PSG',short_name:'Revente PSG',start_url:'/revente-psg/',scope:'/revente-psg/',display:'standalone',background_color:'#0a1f45',theme_color:'#0b3a82',lang:'fr',icons:[{src:'/revente-psg/icons/icon-192.png',sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:'/revente-psg/icons/icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}],shortcuts:shortcuts};
+    var blob='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
+    var link=document.querySelector('link[rel="manifest"]');
+    if(link)link.href=blob;
+  }catch(e){}
+}
+async function logout(){
+  stopSync();
+  try{await auth.signOut();}catch(e){}
+  matches=[];state='login';render();
 }
 
-/* ----- Réglages ----- */
-function vueReglages() {
-  var g = S.main.grille || GRILLE_DEFAUT;
-  var c = S.main.commission != null ? S.main.commission : CFG.commissionRate;
-  var a1 = (S.abos.p1 || {}), a2 = (S.abos.p2 || {});
-  return '<div class="card"><h2 style="margin-top:0">Prix et commission</h2><form data-form="reglages">' +
-    '<div class="row"><label>Commission du club (%)<input id="r-com" type="number" step="0.1" min="0" value="' + esc(r2(c * 100)) + '"></label></div>' +
-    '<p class="muted">Baisse du prix de départ à l\'approche du match :</p>' +
-    '<div class="row"><label>J-7 (%)<input id="r-j7" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j7 * 100)) + '"></label>' +
-    '<label>J-3 (%)<input id="r-j3" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j3 * 100)) + '"></label>' +
-    '<label>J-1 (%)<input id="r-j1" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j1 * 100)) + '"></label></div>' +
-    '<h2>Abonnements ' + esc(saisonCourante()) + '</h2>' +
-    '<div class="row"><label>' + esc(nom('p1')) + ' : prix (€)<input id="r-a1" type="number" step="0.01" min="0" value="' + esc(a1.prix || '') + '"></label>' +
-    '<label>' + esc(nom('p2')) + ' : prix (€)<input id="r-a2" type="number" step="0.01" min="0" value="' + esc(a2.prix || '') + '"></label></div>' +
-    '<p><button type="submit">Enregistrer</button></p></form></div>' +
-    '<div class="card"><h2 style="margin-top:0">Importer un historique</h2>' +
-    '<p class="muted">Choisis le fichier JSON d\'historique (ventes et matchs). Les données existantes du même match sont remplacées.</p>' +
-    '<input type="file" id="imp" accept="application/json,.json"></div>';
-}
-
-/* ---------- Actions ---------- */
-function setFormMsg(e, i) { S.erreur = e || ''; S.info = i || ''; }
-
-var actions = {
-  logout: function (d, e) { e.preventDefault(); auth.signOut(); },
-  tab: function (d) { S.tab = d.k; S.form = null; setFormMsg(); render(true); },
-  passes: function () { S.passes = !S.passes; render(true); },
-  'form-match': function () { S.form = { type: 'match' }; setFormMsg(); render(true); },
-  'form-vente': function (d) { S.form = { type: 'vente', matchId: d.id }; setFormMsg(); render(true); },
-  annuler: function () { S.form = null; setFormMsg(); render(true); },
-  'suppr-vente': function (d) {
-    if (!confirm('Supprimer cette vente ?')) return;
-    var vid = d.vid, matchId = null;
-    mutVentes(function (v, t) {
-      v.forEach(function (x) { if (x.id === vid) matchId = x.matchId; });
-      return { v: v.filter(function (x) { return x.id !== vid; }), t: t };
-    }).then(function () {
-      if (matchId) return db.doc('revente_matches/' + matchId).update({ statut: 'en_vente' });
-    }).catch(surErreur);
+function stamp(p){p.updatedBy=who;p.updatedAt=new Date().toISOString();return p;}
+async function patchMatch(id,patch){
+  stamp(patch);
+  var m=find(id);if(m)Object.assign(m,patch);
+  render();
+  try{await mref().doc(id).update(patch);}
+  catch(e){
+    if(isAuthError(e)){await logout();return;}
+    toast('Enregistrement impossible : '+(e.message||e.code));
+    await refresh();
   }
-};
+}
+async function patchCfg(patch){
+  Object.assign(cfg,patch);render();
+  try{await cref().set(patch,{merge:true});}
+  catch(e){
+    if(isAuthError(e)){await logout();return;}
+    toast('Enregistrement impossible : '+(e.message||e.code));
+    await refresh();
+  }
+}
 
-app.addEventListener('click', function (e) {
-  var t = e.target.closest('[data-a]');
-  if (!t || !actions[t.dataset.a]) return;
-  actions[t.dataset.a](t.dataset, e);
-});
-
-app.addEventListener('change', function (e) {
-  var t = e.target, k = t.dataset && t.dataset.ch;
-  if (t.id === 'imp') { importer(t.files && t.files[0]); return; }
-  if (!k) return;
-  if (k === 'saison') { S.saison = t.value; render(true); }
-  else if (k === 'statut') db.doc('revente_matches/' + t.dataset.id).update({ statut: t.value }).catch(surErreur);
-  else if (k === 'prix') db.doc('revente_matches/' + t.dataset.id).update({ prixDepart: num(t.value) || null }).catch(surErreur);
-  else if (k === 'reglement') {
-    var vid = t.dataset.vid, val = t.value;
-    mutVentes(function (v, tr) {
-      return { v: v.map(function (x) { if (x.id === vid) x.reglementClub = val; return x; }), t: tr };
-    }).catch(surErreur);
+/* ---------- événements ---------- */
+app.addEventListener('click',async function(e){
+  var t=e.target.closest('[data-act]');if(!t)return;
+  var act=t.dataset.act,id=t.dataset.id;
+  if(act==='theme'){var d=!isDark();if(d)document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('psg-theme',d?'dark':'light');}catch(_){}var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.content=d?'#0a111e':'#1c4fd8';t.setAttribute('aria-checked',d);var l=t.querySelector('.swl');if(l)l.textContent=d?'Sombre':'Clair';return;}
+  if(act==='view'){fullView=!fullView;try{localStorage.setItem('psg-view',fullView?'full':'simple');}catch(_){}render();return;}
+  if(act==='delabo'){
+    var da=abos.filter(function(x){return x.id===id;})[0];
+    if(da&&da.source==='billetterie'){toast('Verrouillé : abonnement récupéré depuis la billetterie.');return;}
+    abos=abos.filter(function(x){return x.id!==id;});render();
+    try{await aref().update('a.'+id,firebase.firestore.FieldValue.delete());}
+    catch(e){if(isAuthError(e)){await logout();return;}toast('Suppression impossible : '+(e.message||e.code));await refresh();}
+    return;
+  }
+  if(act==='deltr'){
+    transfers=transfers.filter(function(x){return x.id!==id;});render();
+    try{await vref().update('t.'+id,firebase.firestore.FieldValue.delete());}
+    catch(e){if(isAuthError(e)){await logout();return;}toast('Suppression impossible : '+(e.message||e.code));await refresh();}
+    return;
+  }
+  if(act==='copy'){copyText(t.dataset.v);return;}
+  if(act==='open'){
+    openSet.add(id);render();
+    var el=document.getElementById('fx-'+id);
+    if(el){var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;el.scrollIntoView({behavior:calm?'auto':'smooth',block:'start'});}
+    return;
+  }
+  if(act==='logout'){await logout();return;}
+  if(act==='rstno'){rst=null;render();return;}
+  if(act==='pushon'){await pushOn();return;}
+  if(act==='pushoff'){await pushOff();return;}
+  if(act==='pushkey'){var pk=((document.getElementById('push-vapid')||{}).value||'').trim();if(pk.length<60||/\s/.test(pk)){pushMsg={ok:false,t:'Clé invalide : colle la clé publique complète.'};render();return;}pushMsg=null;patchCfg({vapidKey:pk});toast('Clé enregistrée.');return;}
+  if(act==='rstgo'){await rstGo();return;}
+  if(act==='retry'){syncErr=false;await startApp();return;}
+  if(act==='tab'){tab=t.dataset.v==='fin'?'fin':'matchs';render();window.scrollTo(0,0);return;}
+  if(act==='export'){exportXlsx();return;}
+  if(!db||state!=='ok')return;
+  if(act==='check'){patchCfg({lastCheck:new Date().toISOString(),lastCheckBy:who});toast('Vérification notée.');return;}
+  if(act==='icsall'){downloadIcs(matches.filter(function(x){return x.date&&daysBetween(parisToday(),x.date)>=0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}),'paris-fc-domicile.ics');return;}
+  if(act==='ics'){var im=find(id);if(im)downloadIcs([im],'paris-fc-'+String(im.opp).toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.ics');return;}
+  if(act==='share'){var sm=find(id);if(sm&&'share' in navigator){var shareDate=sm.date?new Date(sm.date+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'';var shareTxt='PSG – '+sm.opp+(shareDate?' · '+shareDate:'')+(sm.listed?' · Place dispo à '+sm.listed+' €':'');navigator.share({title:'PSG – '+sm.opp,text:shareTxt,url:location.href}).catch(function(){});}return;}
+  if(act==='import'){var ta=document.getElementById('imp-text');importVentes(ta?ta.value:'');return;}
+  if(act==='delvente'){var dv=ventes.filter(function(x){return x.id===id;})[0];if(dv&&dv.source==='billetterie'){toast('Vente verrouillée : données récupérées depuis la billetterie.');return;}deleteVente(id);return;}
+  var m=find(id);if(!m)return;
+  if(lockFull(m)||(lockFin(m)&&(act==='posted'||act==='sold'))){toast('Fiche verrouillée.');return;}
+  if(act==='status'){
+    var v=t.dataset.v,patch={status:v},prev=m.status;
+    if(m.status==='attente'&&(v==='ouverte'||v==='enligne')&&!m.openedOn)patch.openedOn=parisToday();
+    if(v==='enligne'&&m.status!=='enligne')patch.postedBy=who;
+    if(v==='enligne'&&!m.listedOn)patch.listedOn=parisToday();
+    if(v==='vendue'&&!m.soldOn)patch.soldOn=parisToday();
+    patchMatch(id,patch);
+    if(v==='vendue'&&prev!=='vendue')ensureSale(m);
+  }else if(act==='posted'){
+    var p2={status:'enligne',listed:Number(t.dataset.v)};
+    if(!m.openedOn)p2.openedOn=parisToday();
+    if(m.status!=='enligne')p2.postedBy=who;
+    if(!m.listedOn)p2.listedOn=parisToday();
+    if(m.firstListed==null)p2.firstListed=Number(t.dataset.v);
+    patchMatch(id,p2);
+  }else if(act==='qsold'){
+    var qp=num((document.getElementById('qp-'+id)||{}).value),qfv=num((document.getElementById('qf-'+id)||{}).value),qf=qfv==null?(qp&&RATE?r2(qp*RATE):0):qfv;
+    if(!qp||qp<=0){toast('Indique le prix de vente.');return;}
+    if(qf<0||qf>=qp){toast('Commission incohérente avec le prix.');return;}
+    patchMatch(id,m.soldOn?{status:'vendue',listed:qp}:{status:'vendue',soldOn:parisToday(),listed:qp});
+    if(!ventes.some(function(v){return isSaleOf(v,m);})){newSale({date:parisToday(),label:'PSG – '+m.opp,matchId:m.id,price:qp,fee:qf});toast('Vente notée : net '+eur(qp-qf)+'.');}
+  }else if(act==='sold'){
+    patchMatch(id,m.soldOn?{status:'vendue'}:{status:'vendue',soldOn:parisToday()});
+    ensureSale(m);
   }
 });
-
-app.addEventListener('input', function (e) {
-  if (e.target.id === 'v-prix') {
-    var c = S.main.commission != null ? S.main.commission : CFG.commissionRate;
-    $('v-com').value = r2(num(e.target.value) * c);
+app.addEventListener('change',function(e){
+  var t=e.target;if(!db||state!=='ok')return;
+  if(t.id==='rst-file'){
+    var fl=t.files&&t.files[0];if(!fl){return;}
+    if(fl.size>5*1024*1024){rst={err:'Fichier trop volumineux pour une sauvegarde.'};openSet.add('rst');render();return;}
+    var rd=new FileReader();rd.onload=function(){rst=rstParse(String(rd.result||''));openSet.add('rst');render();};rd.onerror=function(){rst={err:'Lecture du fichier impossible.'};openSet.add('rst');render();};rd.readAsText(fl);return;
+  }
+  if(t.dataset.vf){
+    var vv=ventes.filter(function(x){return x.id===t.dataset.vid;})[0];if(!vv)return;
+    var nv=Object.assign({},vv),ff=t.dataset.vf;
+    if(lockedVente(vv,ff)){toast('Verrouillé : données récupérées depuis la billetterie.');render();return;}
+    if(ff==='price'||ff==='fee')nv[ff]=num(t.value)||0;else if(ff==='date'){if(!t.value)return;nv[ff]=t.value;}else nv[ff]=t.value;
+    if(ff==='seller'){nv.sellerSrc='manuel';nv.sellerBy=who;}
+    if(nv.source==='billetterie'&&(ff==='price'||ff==='fee'||ff==='date'))nv.edited=who;
+    saveVente(nv);return;
+  }
+  if(t.dataset.field){
+    var lm=find(t.dataset.id);if(lm&&(lockFull(lm)||(lockFin(lm)&&(t.dataset.field==='paid'||t.dataset.field==='floor'||t.dataset.field==='listed')))){toast('Fiche verrouillée.');render();return;}
+    var f=t.dataset.field,v=(f==='openedOn')?(t.value||null):num(t.value),patch={};patch[f]=v;
+    patchMatch(t.dataset.id,patch);
+  }else if(t.dataset.cfg){
+    var c={};c[t.dataset.cfg]=num(t.value);patchCfg(c);
   }
 });
-
-app.addEventListener('focusout', function () {
-  setTimeout(function () { if (pending) render(); }, 250);
-});
-
-app.addEventListener('submit', function (e) {
+app.addEventListener('submit',async function(e){
   e.preventDefault();
-  var f = e.target.dataset.form;
-  setFormMsg();
-  if (f === 'login') {
-    auth.signInWithEmailAndPassword($('l-mail').value.trim(), $('l-pass').value).catch(function () {
-      S.erreur = 'Adresse ou mot de passe incorrect.'; render(true);
-    });
-  } else if (f === 'setup') {
-    var main = {
-      noms: { p1: $('s-n1').value.trim(), p2: $('s-n2').value.trim() },
-      emails: { p1: $('s-e1').value.trim().toLowerCase(), p2: $('s-e2').value.trim().toLowerCase() },
-      grille: GRILLE_DEFAUT, commission: CFG.commissionRate
-    };
-    db.doc('revente_config/main').set(main).catch(surErreur);
-  } else if (f === 'match') {
-    var adv = $('m-adv').value.trim(), date = $('m-date').value;
-    var id = date.slice(0, 10) + '-' + slug(adv);
-    db.doc('revente_matches/' + id).set({
-      adversaire: adv, competition: $('m-comp').value.trim(), date: date,
-      prixDepart: num($('m-prix').value) || null, statut: 'pas_ouverte',
-      creeLe: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function () { S.form = null; S.saison = saisonDe(date); render(true); }).catch(surErreur);
-  } else if (f === 'vente') {
-    var matchId = e.target.dataset.id;
-    var prix = num($('v-prix').value), com = num($('v-com').value);
-    var rec = {
-      id: 'v-' + matchId, matchId: matchId, places: parseInt($('v-pl').value, 10),
-      prix: r2(prix), commission: r2(com), net: r2(prix - com),
-      encaissePar: $('v-enc').value, reglementClub: $('v-reg').value,
-      source: 'manuel', saisiPar: moi() || 'p1'
-    };
-    mutVentes(function (v, t) {
-      return { v: v.filter(function (x) { return x.id !== rec.id; }).concat([rec]), t: t };
-    }).then(function () {
-      return db.doc('revente_matches/' + matchId).update({ statut: 'vendue' });
-    }).then(function () { S.form = null; render(true); }).catch(surErreur);
-  } else if (f === 'reglages') {
-    var g = { j7: num($('r-j7').value) / 100, j3: num($('r-j3').value) / 100, j1: num($('r-j1').value) / 100 };
-    var sais = saisonCourante();
-    var abos = {
-      p1: { prix: num($('r-a1').value), saison: sais },
-      p2: { prix: num($('r-a2').value), saison: sais }
-    };
-    Promise.all([
-      db.doc('revente_config/main').set({ grille: g, commission: num($('r-com').value) / 100 }, { merge: true }),
-      db.doc('revente_config/abonnements').set(abos, { merge: true })
-    ]).then(function () { setFormMsg('', 'Réglages enregistrés.'); render(true); }).catch(surErreur);
+  var f=e.target;
+  if(f.id==='vente-form'){
+    if(!db||state!=='ok')return;
+    var mid=document.getElementById('v-match').value,mm=find(mid);
+    var label=mm?('PSG – '+mm.opp):(document.getElementById('v-label').value.trim()||'Vente');
+    var d=document.getElementById('v-date').value;if(!d)return;
+    openSet.delete('addv');
+    await newSale({date:d,label:label,matchId:mid||null,price:document.getElementById('v-price').value,fee:document.getElementById('v-fee').value,note:document.getElementById('v-note').value.trim(),seller:document.getElementById('v-seller').value});
+    toast('Vente enregistrée.');return;
+  }
+  if(f.id==='abo-form'){
+    if(!db||state!=='ok')return;
+    var as=document.getElementById('a-season').value,ap=document.getElementById('a-person').value,am2=num(document.getElementById('a-amt').value);
+    if(!as||!ap||!am2||am2<=0){toast('Abonnement : choisis la saison, la personne et un montant.');return;}
+    var ar={id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),season:as,person:ap,amount:am2,ref:document.getElementById('a-ref').value.trim(),source:'manuel',by:who};
+    abos.push(ar);abos.sort(function(x,y){return String(y.season).localeCompare(String(x.season))||String(x.person).localeCompare(String(y.person));});openSet.delete('addabo');render();
+    var ao={};ao[ar.id]=ar;
+    try{await aref().set({a:ao},{merge:true});toast('Abonnement enregistré.');}
+    catch(e){if(isAuthError(e)){await logout();return;}toast('Enregistrement impossible : '+(e.message||e.code));await refresh();}
+    return;
+  }
+  if(f.id==='tr-form'){
+    if(!db||state!=='ok')return;
+    var tf=document.getElementById('t-from').value,tt=document.getElementById('t-to').value,ta=num(document.getElementById('t-amt').value),td=document.getElementById('t-date').value;
+    if(!tf||!tt||tf===tt||!ta||ta<=0||!td){toast('Virement : choisis deux personnes différentes et un montant.');return;}
+    var tr={id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),from:tf,to:tt,amount:ta,date:td,note:document.getElementById('t-note').value.trim(),by:who};
+    transfers.unshift(tr);openSet.delete('addt');render();
+    var to={};to[tr.id]=tr;
+    try{await vref().set({t:to},{merge:true});toast('Virement enregistré.');}
+    catch(e){if(isAuthError(e)){await logout();return;}toast('Enregistrement impossible : '+(e.message||e.code));await refresh();}
+    return;
+  }
+  if(f.id==='login-form'){
+    var pw=document.getElementById('pw').value;if(!pw)return;
+    var btn=f.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
+    var em=document.getElementById('usr').value;selUser=em;
+    try{await auth.signInWithEmailAndPassword(em,pw);}
+    catch(err){
+      loginErr=/credential|password|user-not-found|invalid/i.test(err.code||'')?'Mot de passe incorrect.':'Connexion impossible : '+(err.message||err.code);
+      render();return;
+    }
+    who=whoFromEmail(em);
+    try{localStorage.setItem('psg_last_user',em);}catch(x){}
+    loginErr='';await afterLogin();
+  }else if(f.id==='pw-form'){
+    var cur=document.getElementById('pw-cur').value,n1=document.getElementById('pw-new').value,n2=document.getElementById('pw-new2').value;
+    if(n1.length<8){pwMsg={ok:false,t:'Le nouveau mot de passe doit faire au moins 8 caractères.'};render();return;}
+    if(n1!==n2){pwMsg={ok:false,t:'Les deux nouveaux mots de passe ne sont pas identiques.'};render();return;}
+    if(n1===cur){pwMsg={ok:false,t:'Le nouveau mot de passe doit être différent de l’actuel.'};render();return;}
+    var u=auth.currentUser;
+    try{
+      await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,cur));
+      await u.updatePassword(n1);
+      pwMsg=null;openSet.delete('pw');render();toast('Mot de passe modifié.');
+    }catch(err){
+      var c=err&&err.code||'';
+      pwMsg={ok:false,t:/credential|password|invalid/i.test(c)&&!/weak/.test(c)?'Mot de passe actuel incorrect.':(/weak/.test(c)?'Mot de passe trop faible : choisis-en un plus long.':'Changement impossible : '+(err.message||c))};
+      openSet.add('pw');render();
+    }
   }
 });
+app.addEventListener('toggle',function(e){
+  var k=e.target&&e.target.dataset&&e.target.dataset.key;if(!k)return;
+  if(e.target.open)openSet.add(k);else openSet.delete(k);
+},true);
+app.addEventListener('focusout',function(){if(pending){pending=false;setTimeout(refresh,200);}});
+document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
 
-/* ---------- Import de l'historique ---------- */
-var PERS = { A: 'p1', B: 'p2', p1: 'p1', p2: 'p2' };
-function importer(file) {
-  if (!file) return;
-  var rd = new FileReader();
-  rd.onload = function () {
-    var j;
-    try { j = JSON.parse(rd.result); } catch (x) { S.erreur = 'Fichier illisible (JSON invalide).'; render(true); return; }
-    var ventes = j.ventes || [], enVente = j.enVente || [];
-    if (!ventes.length && !enVente.length) { S.erreur = 'Aucune vente trouvée dans ce fichier.'; render(true); return; }
-    if (!confirm('Importer ' + ventes.length + ' vente(s) et ' + enVente.length + ' match(s) en vente ?')) return;
-    var batch = db.batch(), recs = [];
-    function matchDoc(x, statut) {
-      var id = x.date + '-' + slug(x.match);
-      batch.set(db.doc('revente_matches/' + id), {
-        adversaire: x.match, competition: x.competition || '', date: x.date, statut: statut
-      }, { merge: true });
-      return id;
-    }
-    ventes.forEach(function (x) {
-      var id = matchDoc(x, 'vendue');
-      recs.push({
-        id: 'v-' + id, matchId: id, places: x.places || 2, prix: r2(x.prix), commission: r2(x.commission),
-        net: r2(x.net != null ? x.net : x.prix - x.commission), encaissePar: PERS[x.encaissePar] || 'p1',
-        reglementClub: x.reglementClub === 'verse' ? 'verse' : 'attente', source: x.source || 'billetterie', saisiPar: moi() || 'p1'
-      });
-    });
-    enVente.forEach(function (x) {
-      var id = matchDoc(x, 'en_vente');
-      if (x.prix) batch.set(db.doc('revente_matches/' + id), { prixDepart: x.prix }, { merge: true });
-    });
-    if (j.abonnements && j.saison) {
-      var abos = {};
-      j.abonnements.forEach(function (a) { if (PERS[a.personne]) abos[PERS[a.personne]] = { prix: a.prix, places: a.places || 1, saison: j.saison }; });
-      batch.set(db.doc('revente_config/abonnements'), abos, { merge: true });
-    }
-    batch.commit().then(function () {
-      return mutVentes(function (v, t) {
-        var ids = {}; recs.forEach(function (r) { ids[r.id] = 1; });
-        return { v: v.filter(function (x) { return !ids[x.id]; }).concat(recs), t: t };
-      });
-    }).then(function () {
-      setFormMsg('', 'Import terminé : ' + ventes.length + ' vente(s).'); S.tab = 'ventes'; render(true);
-    }).catch(surErreur);
-  };
-  rd.readAsText(file);
+/* ---------- démarrage ---------- */
+function configured(){
+  function ok(v){return v&&String(v).indexOf('VOTRE')<0;}
+  return !!CFGX.FIREBASE&&ok(CFGX.FIREBASE.apiKey)&&users().length>0;
 }
+(function init(){
+  if(!configured()){state='setup';render();return;}
+  if(!window.firebase||!firebase.initializeApp){
+    state='error';errMsg='La bibliothèque Firebase ne s’est pas chargée. Vérifie ta connexion et recharge la page.';render();return;
+  }
+  if(!firebase.apps.length)firebase.initializeApp(CFGX.FIREBASE);
+  auth=firebase.auth();db=firebase.firestore();
+  try{var pp=db.enablePersistence({synchronizeTabs:true});if(pp&&pp.catch)pp.catch(function(){});}catch(e){}
+  var first=true;
+  auth.onAuthStateChanged(function(u){
+    if(!first)return;first=false;
+    if(u){who=whoFromEmail(u.email);afterLogin();}else{state='login';render();}
+  });
+})();
+})();
+</script>
+<!-- ── Bandeau hors-ligne ── -->
+<div id="offlineBanner" role="status" aria-live="polite">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+  Hors-ligne — données en cache
+</div>
+<!-- ── PWA install banner ── -->
+<div id="pwaBar" style="position:fixed;bottom:0;left:0;right:0;z-index:30;padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);display:none;flex-direction:column;gap:8px">
+  <button id="pwaInstall" type="button">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M7 10l5 5 5-5"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
+    Installer l'application
+  </button>
+  <div id="iosHint">
+    <strong>Installer sur iPhone / iPad</strong><br>
+    Appuyez sur <strong>Partager</strong> <span aria-hidden="true">⎙</span> puis <strong>Sur l'écran d'accueil</strong>
+  </div>
+</div>
+<script>
+(function(){
+  /* ── Bandeau hors-ligne ── */
+  function syncOfflineBanner(){
+    var b=document.getElementById('offlineBanner');
+    if(!b)return;
+    if(navigator.onLine){b.classList.remove('visible');}
+    else{b.classList.add('visible');}
+  }
+  syncOfflineBanner();
+  window.addEventListener('online',syncOfflineBanner);
+  window.addEventListener('offline',syncOfflineBanner);
 
-render(true);
+  /* ── Service Worker ── */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('/revente-psg/sw.js',{scope:'/revente-psg/'})
+        .catch(function(){});
+    });
+  }
+
+  /* ── Install prompt (Android / Desktop) ── */
+  var deferredPrompt=null;
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    var bar=document.getElementById('pwaBar');
+    var btn=document.getElementById('pwaInstall');
+    if(bar&&btn){bar.style.display='flex';btn.classList.add('visible');}
+  });
+
+  document.addEventListener('click',function(e){
+    if(e.target&&e.target.id==='pwaInstall'&&deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){deferredPrompt=null;});
+      var bar=document.getElementById('pwaBar');
+      if(bar)bar.style.display='none';
+    }
+  });
+
+  window.addEventListener('appinstalled',function(){
+    var bar=document.getElementById('pwaBar');
+    if(bar)bar.style.display='none';
+    deferredPrompt=null;
+  });
+
+  /* ── iOS Safari hint ── */
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  var isStandalone=('standalone' in navigator&&navigator.standalone);
+  if(isIOS&&isSafari&&!isStandalone){
+    var bar=document.getElementById('pwaBar');
+    var hint=document.getElementById('iosHint');
+    if(bar&&hint){bar.style.display='flex';hint.classList.add('visible');}
+  }
 })();
 </script>
 </body>
 </html>
+<!-- build sri -->

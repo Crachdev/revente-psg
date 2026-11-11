@@ -1,0 +1,54 @@
+{
+  "name": "Revente PSG",
+  "short_name": "Revente PSG",
+  "description": "Suivi des reventes de places PSG pour Rachid et Sylvain.",
+  "start_url": "/revente-psg/",
+  "scope": "/revente-psg/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a1f45",
+  "theme_color": "#0b3a82",
+  "lang": "fr",
+  "categories": [
+    "sports",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Matchs à venir",
+      "short_name": "Matchs",
+      "url": "/revente-psg/",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Finances",
+      "short_name": "Finances",
+      "url": "/revente-psg/#finances",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

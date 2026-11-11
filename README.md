@@ -1,51 +1,87 @@
-# Revente PSG : suivi des reventes de places d'abonnement
+# Revente PSG : suivi des reventes PSG
 
-Application privée pour suivre la revente de places d'abonnement (Paris Saint-Germain), les prix conseillés et les ventes encaissées. Utilisée à deux, depuis n'importe où. Projet indépendant de « Revente PFC » : dépôt, projet Firebase et données séparés.
+Application privée pour suivre la revente des places d'abonnement (PSG), les prix conseillés et les ventes encaissées. Utilisée à deux (Rachid et Sylvain), depuis n'importe où.
+
+**Adresse :** https://crachdev.github.io/revente-psg/
+
+## Ce que fait l'application
+
+- **Deux vues** (bouton « Vue complète / Vue simple », mémorisé sur l'appareil) : la vue simple affiche l'essentiel, la vue complète donne accès à tout.
+- **Onglet Matchs** : les matchs à domicile avec le logo du club adverse, leur statut (pas encore ouverte, ouverte à poster, en vente, vendue, prêtée, non vendue, gardée), le prix conseillé et les paliers de baisse (J-7, J-3, J-1). Sur un match « en vente », un bloc « Vendue ? » enregistre la vente (prix + commission) en un geste. Boutons « Google Agenda », « .ics » et « Partager » sur chaque match.
+- **Onglet Finances** : bilan de la saison, rentabilité de l'abonnement de chacun, qui doit quoi à qui (ventes encaissées, règlement du club, virements entre vous), saisie et import de ventes, totaux par saison et par année fiscale, export Excel.
+- **Alerte e-mail quotidienne** à 12h (heure de Paris) quand il y a quelque chose à faire, et notification push sur les téléphones qui l'ont activée.
+- **Sauvegarde hebdomadaire** par e-mail (fichier JSON) et outil de **restauration** dans la vue complète.
+- **Application installable** (écran d'accueil du téléphone), qui démarre aussi sans réseau en lecture seule.
+
+L'ouverture d'une revente est notée à la main dans l'appli (un clic) : elle ne peut pas être détectée automatiquement.
 
 ## Règles de calcul
 
-- Net d'une vente = prix de la vente − commission du club (12 % constatés, modifiable vente par vente).
-- Une vente porte sur 1 ou 2 places (la paire est vendue ensemble la plupart du temps).
-- « Par personne » = total net ÷ 2 pour une paire vendue à deux.
-- Saison du 1er août au 31 juillet ; une vente compte dans la saison de son match. Année fiscale = année civile de la date de la vente.
+- Net d'une vente = prix de la paire − commission du club (12 % chez le PSG : laisser le champ commission vide dans « Vendue ? » applique ce taux, réglable dans `config.js`).
+- « Par personne » = total net ÷ 2 (vous êtes deux).
+- Saison du 1er août au 31 juillet ; une vente compte dans la saison de **son match**. Année fiscale = année civile de la date de la vente.
 - Une vente est liée à son match par `matchId`.
-- Qui doit quoi à qui s'affiche dans l'appli seulement, jamais dans un mail ni une notification.
 
-## Données (Firebase, plan gratuit)
+## Comptes
 
-- `revente_matches` : un document par match à domicile (adversaire, date, statut, prix de départ).
-- `revente_config/main` : les deux personnes (prénoms et e-mails, saisis dans l'appli au premier lancement), grille de baisse de prix, commission, clé web push.
-- `revente_config/ventes` : les ventes (`v`) et les virements entre les deux personnes (`t`).
-- `revente_config/abonnements` : un abonnement par personne (prix, saison, places).
-- `revente_config/push` : appareils qui reçoivent les notifications.
+Deux comptes séparés, chacun avec son mot de passe : Rachid et Sylvain. Le mot de passe se change dans l'appli (section « Mon mot de passe »).
 
-Une vente contient : `matchId`, nombre de places, prix, commission, net, qui a encaissé, règlement du club (versé / en attente), origine de la donnée (billetterie ou saisie manuelle) et auteur de la saisie.
+## Comment c'est construit
 
-## Utilisation
+| Élément | Rôle |
+|---|---|
+| `index.html` | Toute l'application (une seule page), hébergée par GitHub Pages |
+| `config.js` | Configuration publique Firebase et liste des utilisateurs |
+| `sw.js`, `manifest.json`, `icons/` | Application installable, cache hors connexion, notifications push |
+| `scripts/alerte.js` | Alerte e-mail + push quotidienne (à activer : secrets GitHub, voir Entretien) |
+| `scripts/sauvegarde.js` | Sauvegarde hebdomadaire envoyée par e-mail |
+| `.github/workflows/` | Planification des deux scripts |
 
-- Onglet Matchs : liste des matchs de la saison, statut modifiable, prix de départ de la paire, prix conseillé du jour (baisse à J-7, J-3 et J-1, réglable), bouton « Vendue ? » qui enregistre la vente.
-- Onglet Ventes : prix, commission, net, qui a encaissé, règlement du club (versé / en attente), totaux de la saison.
-- Onglet Réglages : commission, paliers de baisse, prix des abonnements, import d'un fichier d'historique (JSON).
-- Au premier lancement, l'appli demande les deux personnes (prénoms et e-mails de connexion) : ces informations restent dans la base privée.
+Les données sont dans Firebase (projet revente-psg, base Firestore, plan gratuit) :
 
-## Sécurité
+- `revente_matches` : un document par match ;
+- `revente_config/main` : grille de prix, dernière vérification, clé web push ;
+- `revente_config/ventes` : les ventes (`v`) et les virements (`t`) ;
+- `revente_config/abonnements` : les abonnements de chacun ;
+- `revente_config/push` : les appareils qui reçoivent les notifications.
 
-- Authentification Firebase par e-mail et mot de passe, 2 comptes, inscription libre désactivée.
-- `firestore.rules` limite la lecture et l'écriture aux 2 adresses. C'est une copie de référence : il faut la coller dans la console Firebase, elle ne se déploie pas toute seule.
-- Aucun secret, aucune adresse e-mail ni coordonnée dans ce dépôt public.
+La grille de prix existe dans l'appli et dans `scripts/alerte.js` (constante `DEF` et formule `plan`) : les deux doivent rester identiques.
+
+## Entretien
+
+**Secrets GitHub** (Settings → Secrets and variables → Actions) :
+
+- `FIREBASE_SERVICE_ACCOUNT` : contenu du fichier `.json` d'un compte de service Firebase.
+- `GMAIL_APP_PASSWORD` : mot de passe d'application Gmail (16 caractères).
+- `MAIL_TO` : adresse(s) qui reçoivent l'alerte et la sauvegarde, séparées par une virgule.
+
+**Changer la clé Firebase** : Firebase → Paramètres du projet → Comptes de service → Générer une nouvelle clé privée, remplacer le secret `FIREBASE_SERVICE_ACCOUNT`, puis supprimer l'ancienne clé dans Firebase.
+
+**Tester l'alerte** : onglet Actions → « Alerte quotidienne revente » → Run workflow (s'il n'y a rien à signaler, une notification « Test » est envoyée aux appareils enregistrés).
+
+**Activer le push** : Firebase → Paramètres du projet → Cloud Messaging → Certificats Web Push → générer une paire de clés ; dans l'appli (vue complète → « Notifications push »), coller la clé une fois, puis activer sur chaque téléphone (iPhone : appli installée sur l'écran d'accueil).
+
+**Restaurer une sauvegarde** : vue complète → « Restaurer une sauvegarde » → choisir le fichier JSON reçu par e-mail → vérifier l'aperçu → confirmer.
+
+**Mettre à jour l'application** : remplacer les fichiers modifiés dans le dépôt (Add file → Upload files). Le site se met à jour en 1 à 3 minutes ; recharger l'appli. Annuler une modification : ouvrir le commit concerné → Revert.
+
+## Règles de sécurité Firebase
+
+Les collections `revente_matches` et `revente_config` doivent n'être lisibles et modifiables que par les deux comptes (Rachid et Sylvain), et l'inscription libre doit être désactivée dans Firebase Authentication.
+
+Le texte des règles à publier se trouve dans `firestore.rules` (Firebase → Firestore Database → Règles → Publier). Ce fichier n'est qu'une copie de référence : il faut le coller dans la console, il ne se déploie pas tout seul. L'alerte quotidienne et la sauvegarde utilisent un accès administrateur qui ignore ces règles.
 
 ## Limites connues
 
-- L'ouverture d'une revente est notée à la main (un clic) : la billetterie est derrière une connexion personnelle et ne peut pas être surveillée automatiquement.
-- Les ventes importées portent la date du match, pas celle de la vente.
-- Le push web sur iPhone exige que l'appli soit installée sur l'écran d'accueil.
+- Pas de détection automatique des ouvertures de revente.
+- La revente se fait uniquement sur la plateforme officielle du club.
+- Les ventes de départ importées portent la date du match, pas celle de la vente.
+- Le push web sur iPhone est moins fiable qu'une application native.
 
-## Feuille de route
+## Tests
 
-1. Base : dépôt, règles de sécurité, configuration. (fait)
-2. Cœur : matchs, statuts, prix et paliers, enregistrement des ventes, import. (fait)
-3. Finances : encaissements, règlement du club, bilans, export Excel.
-4. Fiabilité : hors connexion, sauvegarde et restauration.
-5. Alertes : mail et push quotidiens.
+`node tests/app.test.js` (Playwright + faux Firebase) vérifie l'affichage, les totaux, la saisie d'une vente, la restauration, la grille de prix partagée avec le script d'alerte et le rappel de règlement du club. Il tourne aussi sur GitHub à chaque modification (onglet Actions).
 
-Annuler une modification : ouvrir le commit concerné sur GitHub, puis « Revert ».
+## Origine
+
+Cette application est la même que « Revente PFC », adaptée au PSG : mêmes écrans et mêmes règles de calcul, projet Firebase et dépôt séparés, aucune donnée commune.

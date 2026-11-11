@@ -1,7 +1,7 @@
-// Configuration publique de l'application (aucun secret ici : ces valeurs Firebase web sont publiques).
-// La sécurité repose sur l'authentification et sur les règles Firestore.
-window.APP_CONFIG = {
-  firebase: {
+// Configuration Firebase (projet revente-psg). Ces valeurs sont publiques par conception :
+// la protection vient des comptes (mot de passe) et des règles Firestore.
+window.PSG_CONFIG = {
+  FIREBASE: {
     apiKey: "AIzaSyDi01h-M_Gs8ir4eAV694GPExCVSVpGjqE",
     authDomain: "revente-psg.firebaseapp.com",
     projectId: "revente-psg",
@@ -9,8 +9,11 @@ window.APP_CONFIG = {
     messagingSenderId: "1021107889469",
     appId: "1:1021107889469:web:1edc868b5d88ed2e795154"
   },
-  // Commission du club sur la revente (12 % constatés sur toutes les ventes). Modifiable sur chaque vente.
-  commissionRate: 0.12,
-  // Saison : du 1er août au 31 juillet. Année fiscale : année civile de la vente.
-  saisonDebutMois: 8
+  // Un compte par personne, créé dans Firebase Authentication (même e-mail, un mot de passe différent chacun).
+  USERS: [
+    { name: "Rachid",  email: "rachid@psg-revente.fr" },
+    { name: "Sylvain", email: "sylvain@psg-revente.fr" }
+  ],
+  // Commission du club sur une revente, en % (sert à pré-remplir quand on laisse le champ vide).
+  COMMISSION: 12
 };
