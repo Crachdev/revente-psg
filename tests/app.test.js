@@ -40,6 +40,16 @@ async function open(browser, failSnap) {
     const txt = await p.$eval('#h-stat', e => e.parentElement.innerText);
     assert.ok(/Ventes analysées\s*11/.test(txt) && /Estimation indicative/.test(txt) && /historique suffisant/.test(txt), txt);
   });
+  await t('ventes versées moitié-moitié : aucune dette entre vous', async () => {
+    const txt = await p.$eval('#h-bal', e => e.parentElement.innerText);
+    assert.ok(/comptes sont à jour/.test(txt), txt);
+  });
+  await t('Slovan : non vendu, utilisé par Sylvain, listé dans les matchs passés', async () => {
+    await p.click('[data-act="tab"][data-v="matchs"]'); await p.waitForTimeout(150);
+    const txt = await p.evaluate(() => document.body.innerText);
+    await p.click('[data-act="tab"][data-v="fin"]'); await p.waitForTimeout(150);
+    assert.ok(/Slovan/i.test(txt) && /Utilisée/i.test(txt) && /par Sylvain/i.test(txt), 'Slovan absent');
+  });
   await t('totaux par saison', async () => {
     const txt = await p.$eval('section[aria-label="Par saison"]', e => e.innerText);
     assert.ok(/2026-27/.test(txt) && /3\D847,36/.test(txt), txt);
@@ -57,6 +67,10 @@ async function open(browser, failSnap) {
     await p.click('#vente-form button[type=submit]'); await p.waitForTimeout(400);
     const txt = await p.$eval('section[aria-label="Par saison"]', e => e.innerText);
     assert.ok(/2026-27\s+12/.test(txt) && !/2025-26/.test(txt), txt);
+  });
+  await t('une vente versée à une seule personne crée une dette de la moitié', async () => {
+    const txt = await p.$eval('#h-bal', e => e.parentElement.innerText);
+    assert.ok(/Rachid doit 45/.test(txt), txt);
   });
   await p.click('[data-act="tab"][data-v="matchs"]'); await p.waitForTimeout(150);
   await t('bouton « Vendue » : validation, puis commission vide = 12 % du prix', async () => {
