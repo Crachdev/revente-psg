@@ -381,7 +381,7 @@ function card(r){
   var lockF=lockFull(m),lockN=lockFin(m);
   var px='—',cap='prix à définir';
   if(m.status==='vendue'){px='Vendue';cap=listed!=null?eur(listed):'';}
-  else if(m.status==='gardee'){px='Gardée';cap='';}
+  else if(m.status==='gardee'){px=m.usedBy?'Utilisée':'Gardée';cap=m.usedBy?'par '+m.usedBy:'';}
   else if(m.status==='enligne'&&listed!=null){px=eur(listed);cap='affiché';}
   else if(p){px=eur(p.now);cap='conseillé';}
   if(isPast){
@@ -389,7 +389,7 @@ function card(r){
     if(m.status==='vendue'){px=sv?eur(netOf(sv)):'Vendue';cap=sv?'net perçu':'';}
     else if(m.status==='pretee'){px='Prêtée';cap='';}
     else if(m.status==='nonvendue'){px='Non vendue';cap='vente non aboutie';}
-    else if(m.status==='gardee'){px='Gardée';cap='';}
+    else if(m.status==='gardee'){px=m.usedBy?'Utilisée':'Gardée';cap=m.usedBy?'par '+m.usedBy:'';}
     else{px='À renseigner';cap='issue du match';}
   }
   var seg=STATUS.map(function(s){return '<button type="button" class="seg-b" data-act="status" data-id="'+id+'" data-v="'+s[0]+'" aria-pressed="'+(m.status===s[0])+'">'+s[1]+'</button>';}).join('');
@@ -417,19 +417,20 @@ function card(r){
     return '<div class="fld"><label for="'+fid+'">'+label+'</label><input id="'+fid+'"'+dis+' type="'+(field==='openedOn'?'date':'number')+'" '+(field==='openedOn'?'':'inputmode="decimal" step="0.5" min="0" ')+'data-field="'+field+'" data-id="'+id+'" value="'+esc(val==null?'':val)+'">'+(extra?'<small>'+extra+'</small>':'')+'</div>';
   }
   var info=[];
+  if(m.usedBy)info.push('Places utilisées par '+esc(m.usedBy)+' : match non vendu');
   if((m.status==='enligne'||m.status==='vendue')&&m.postedBy)info.push('Mise en vente par '+esc(m.postedBy));
   if(m.updatedBy&&m.updatedAt){var a=ago(m.updatedAt);if(a)info.push('Dernière modification : '+esc(m.updatedBy)+', '+a);}
   if(lockF){
     return '<div class="fx past locked" id="fx-'+id+'" aria-label="Match verrouillé : vendu, informations enregistrées">'+
       '<div class="sum"><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
       '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
-      '<span class="side"><span class="pill s-'+esc(m.status)+'">'+esc(STATUS_LABEL[m.status]||m.status)+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+      '<span class="side"><span class="pill s-'+esc(m.status)+'">'+esc(m.status==='gardee'&&m.usedBy?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
       '<span class="lock" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span></div></div>';
   }
   return '<details class="fx'+(isPast?' past':'')+'" id="fx-'+id+'" data-key="'+id+'"'+(openSet.has(m.id)?' open':'')+'>'+
     '<summary><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
     '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
-    '<span class="side"><span class="pill s-'+esc(m.status)+'">'+(lockN?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span>':'')+esc(STATUS_LABEL[m.status]||m.status)+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+    '<span class="side"><span class="pill s-'+esc(m.status)+'">'+(lockN?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span>':'')+esc(m.status==='gardee'&&m.usedBy?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
     '<span class="chev" aria-hidden="true"></span></summary>'+
     '<div class="body"><div class="seg" role="group" aria-label="Statut de la revente pour '+esc(m.opp)+'">'+seg+'</div>'+planHtml+
     (acts&&!lockN?'<div class="acts">'+acts+'</div>':'')+
@@ -1073,12 +1074,12 @@ async function seedIfEmpty(){
   SEED.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i+1,opp:m[1],date:m[2],time:m[3],weekend:m[4],comp:m[5]||'',status:m[6]||'attente',paid:null,floor:null,listed:m[7]==null?null:m[7],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
   await b.commit();
 }
-var PAST=[['p01','Monaco','2026-09-04',null,'L1',300],['p02','Le Mans','2026-10-10',null,'L1',232],['p03','Barcelone','2026-10-20',null,'LDC',998],['p04','Lyon','2026-10-26',null,'L1',398],['p05','Troyes','2026-11-07',null,'L1',220]];
+var PAST=[['p01','Monaco','2026-09-04',null,'L1',300],['p06','Slovan Bratislava','2026-09-09',null,'LDC',null,'Sylvain'],['p02','Le Mans','2026-10-10',null,'L1',232],['p03','Barcelone','2026-10-20',null,'LDC',998],['p04','Lyon','2026-10-26',null,'L1',398],['p05','Troyes','2026-11-07',null,'L1',220]];
 async function seedPastIfMissing(){
   var s=await mref().doc('p01').get();
   if(s.exists)return;
   var b=db.batch();
-  PAST.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i-PAST.length,opp:m[1],date:m[2],time:m[3],weekend:false,comp:m[4]||'',status:'vendue',paid:null,floor:null,listed:m[5]==null?null:m[5],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
+  PAST.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i-PAST.length,opp:m[1],date:m[2],time:m[3],weekend:false,comp:m[4]||'',status:m[6]?'gardee':'vendue',usedBy:m[6]||null,paid:null,floor:null,listed:m[5]==null?null:m[5],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
   await b.commit();
 }
 async function reload(){
