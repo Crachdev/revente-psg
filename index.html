@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Revente PSG</title>
+<style>
+:root{--bleu:#0a2a4a;--rouge:#c8102e;--gris:#f2f4f7;--texte:#1b2430;--ok:#1a7f4b;--bord:#d5dbe3}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--texte);background:var(--gris)}
+header{background:var(--bleu);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header h1{font-size:18px;margin:0}
+header .qui{font-size:13px;opacity:.85}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--bord);position:sticky;top:0;z-index:2}
+nav button{flex:1;padding:12px 6px;border:0;background:none;font:inherit;border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{border-bottom-color:var(--rouge);font-weight:600}
+main{max-width:820px;margin:0 auto;padding:12px}
+.card{background:#fff;border:1px solid var(--bord);border-radius:10px;padding:12px;margin:10px 0}
+.row{display:flex;gap:10px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:6px 0}
+.row>label{flex:1;min-width:140px}
+label{display:block;font-size:13px;color:#4a5668}
+input,select{width:100%;padding:9px;border:1px solid var(--bord);border-radius:8px;font:inherit;background:#fff}
+button{padding:9px 14px;border:1px solid var(--bleu);border-radius:8px;background:var(--bleu);color:#fff;font:inherit;cursor:pointer}
+button.sec{background:#fff;color:var(--bleu)}
+button.danger{background:#fff;color:var(--rouge);border-color:var(--rouge)}
+.muted{color:#5d6b7e;font-size:14px}
+.hint{background:#eef6ff;border-radius:8px;padding:6px 10px;margin:6px 0;font-size:14px}
+.err{color:var(--rouge);margin:8px 0}
+.ok{color:var(--ok)}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;background:#e8edf3}
+.pill.verse{background:#dcf3e6;color:var(--ok)}
+.pill.attente{background:#fff0d6;color:#8a5a00}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px 4px;border-bottom:1px solid var(--bord);text-align:left;vertical-align:middle}
+td.n,th.n{text-align:right;white-space:nowrap}
+.scroll{overflow-x:auto}
+h2{font-size:17px;margin:16px 0 6px}
+.login{max-width:360px;margin:40px auto}
+</style>
+</head>
+<body>
+<div id="app"><p style="padding:20px">Chargement…</p></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* ---------- Constantes et utilitaires ---------- */
+var CFG = window.APP_CONFIG;
+var STATUTS = {
+  pas_ouverte: 'Pas encore ouverte',
+  ouverte: 'Ouverte à poster',
+  en_vente: 'En vente',
+  vendue: 'Vendue',
+  prete: 'Prêtée',
+  non_vendue: 'Non vendue',
+  gardee: 'Gardée'
+};
+var REGLEMENT = { attente: 'En attente', verse: 'Versé' };
+var GRILLE_DEFAUT = { j7: 0.10, j3: 0.20, j1: 0.30 };
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function r2(n) { return Math.round(n * 100) / 100; }
+function num(v) { var n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; }
+function eur(n) { return (n || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }); }
+function slug(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function saisonDe(d) {
+  var x = new Date(d), y = x.getFullYear(), m = x.getMonth() + 1;
+  return m >= CFG.saisonDebutMois ? y + '-' + (y + 1) : (y - 1) + '-' + y;
+}
+function joursAvant(d) {
+  var t = new Date(); t.setHours(0, 0, 0, 0);
+  var x = new Date(d); x.setHours(0, 0, 0, 0);
+  return Math.round((x - t) / 86400000);
+}
+function fmtDate(d) {
+  if (!d) return '';
+  var x = new Date(d);
+  var s = x.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  if (String(d).length > 10) s += ' ' + x.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  return s;
+}
+function opts(map, cur) {
+  return Object.keys(map).map(function (k) {
+    return '<option value="' + esc(k) + '"' + (k === cur ? ' selected' : '') + '>' + esc(map[k]) + '</option>';
+  }).join('');
+}
+function $(id) { return document.getElementById(id); }
+
+/* ---------- État ---------- */
+var S = {
+  user: null, main: undefined, matches: [], ventes: { v: [], t: [] }, abos: {},
+  tab: 'matchs', saison: null, passes: false, form: null, erreur: '', info: ''
+};
+var subs = [];
+var pending = false;
+
+/* ---------- Firebase ---------- */
+firebase.initializeApp(CFG.firebase);
+var auth = firebase.auth();
+var db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(function () {});
+
+function unsubAll() { subs.forEach(function (u) { u(); }); subs = []; }
+function surErreur(e) { S.erreur = 'Erreur : ' + (e && e.message ? e.message : e); render(true); }
+
+function ecouter() {
+  subs.push(db.collection('revente_matches').onSnapshot(function (q) {
+    S.matches = q.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; });
+    render();
+  }, surErreur));
+  subs.push(db.doc('revente_config/main').onSnapshot(function (d) {
+    S.main = d.exists ? d.data() : null; render();
+  }, surErreur));
+  subs.push(db.doc('revente_config/ventes').onSnapshot(function (d) {
+    var x = d.exists ? d.data() : {};
+    S.ventes = { v: x.v || [], t: x.t || [] }; render();
+  }, surErreur));
+  subs.push(db.doc('revente_config/abonnements').onSnapshot(function (d) {
+    S.abos = d.exists ? d.data() : {}; render();
+  }, surErreur));
+}
+
+auth.onAuthStateChanged(function (u) {
+  S.user = u; S.main = undefined; unsubAll();
+  if (u) ecouter();
+  render(true);
+});
+
+function mutVentes(fn) {
+  var ref = db.doc('revente_config/ventes');
+  return db.runTransaction(function (tx) {
+    return tx.get(ref).then(function (d) {
+      var x = d.exists ? d.data() : {};
+      var r = fn(x.v || [], x.t || []);
+      tx.set(ref, { v: r.v, t: r.t });
+    });
+  });
+}
+
+/* ---------- Personnes ---------- */
+function nom(p) { return (S.main && S.main.noms && S.main.noms[p]) || p; }
+function moi() {
+  if (!S.main || !S.main.emails || !S.user) return null;
+  var e = (S.user.email || '').toLowerCase();
+  return S.main.emails.p1 === e ? 'p1' : (S.main.emails.p2 === e ? 'p2' : null);
+}
+function persOpts(cur) { return opts({ p1: nom('p1'), p2: nom('p2') }, cur); }
+
+/* ---------- Prix conseillé ---------- */
+function prixConseille(m) {
+  if (!m.prixDepart || !m.date) return null;
+  var j = joursAvant(m.date);
+  if (j < 0) return null;
+  var g = (S.main && S.main.grille) || GRILLE_DEFAUT;
+  var f = 0;
+  if (j <= 1) f = g.j1; else if (j <= 3) f = g.j3; else if (j <= 7) f = g.j7;
+  return Math.round(m.prixDepart * (1 - f));
+}
+
+/* ---------- Rendu ---------- */
+var app = $('app');
+
+function render(force) {
+  var a = document.activeElement;
+  if (!force && a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && app.contains(a)) { pending = true; return; }
+  pending = false;
+  if (!S.user) { app.innerHTML = vueLogin(); return; }
+  if (S.main === undefined) { app.innerHTML = entete() + '<main><p class="muted">Chargement des données…</p>' + msg() + '</main>'; return; }
+  if (S.main === null) { app.innerHTML = entete() + '<main>' + vueConfigInitiale() + '</main>'; return; }
+  var corps = S.tab === 'ventes' ? vueVentes() : (S.tab === 'reglages' ? vueReglages() : vueMatchs());
+  app.innerHTML = entete() + nav() + '<main>' + msg() + corps + '</main>';
+}
+function msg() {
+  return (S.erreur ? '<p class="err">' + esc(S.erreur) + '</p>' : '') + (S.info ? '<p class="ok">' + esc(S.info) + '</p>' : '');
+}
+function entete() {
+  var p = moi();
+  return '<header><h1>Revente PSG</h1><span class="qui">' + esc(p ? nom(p) : (S.user ? S.user.email : '')) +
+    ' · <a href="#" data-a="logout" style="color:#fff">Quitter</a></span></header>';
+}
+function nav() {
+  function b(k, l) { return '<button data-a="tab" data-k="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + l + '</button>'; }
+  return '<nav>' + b('matchs', 'Matchs') + b('ventes', 'Ventes') + b('reglages', 'Réglages') + '</nav>';
+}
+
+function vueLogin() {
+  return '<div class="login card"><h1 style="margin-top:0">Revente PSG</h1>' +
+    '<form data-form="login"><label>Adresse e-mail<input id="l-mail" type="email" autocomplete="username" required></label>' +
+    '<label style="margin-top:8px">Mot de passe<input id="l-pass" type="password" autocomplete="current-password" required></label>' +
+    (S.erreur ? '<p class="err">' + esc(S.erreur) + '</p>' : '') +
+    '<p><button type="submit">Se connecter</button></p></form></div>';
+}
+
+function vueConfigInitiale() {
+  return '<div class="card"><h2 style="margin-top:0">Configuration initiale</h2>' +
+    '<p class="muted">Première utilisation : indique les deux personnes. Ces informations restent dans la base privée, jamais dans le code public. La personne 1 est celle qui encaisse l\'historique importé.</p>' +
+    '<form data-form="setup">' +
+    '<div class="row"><label>Prénom personne 1<input id="s-n1" required></label><label>E-mail de connexion personne 1<input id="s-e1" type="email" required></label></div>' +
+    '<div class="row"><label>Prénom personne 2<input id="s-n2" required></label><label>E-mail de connexion personne 2<input id="s-e2" type="email" required></label></div>' +
+    msg() + '<p><button type="submit">Enregistrer</button></p></form></div>';
+}
+
+function saisons() {
+  var set = {};
+  S.matches.forEach(function (m) { if (m.date) set[saisonDe(m.date)] = 1; });
+  var cur = saisonDe(new Date());
+  set[cur] = 1;
+  return Object.keys(set).sort();
+}
+function saisonCourante() { return S.saison || saisonDe(new Date()); }
+function selSaison() {
+  var o = {}; saisons().forEach(function (s) { o[s] = 'Saison ' + s; });
+  return '<label>Saison<select data-ch="saison">' + opts(o, saisonCourante()) + '</select></label>';
+}
+
+/* ----- Matchs ----- */
+function vueMatchs() {
+  var sais = saisonCourante();
+  var auj = new Date(); auj.setHours(0, 0, 0, 0);
+  var liste = S.matches.filter(function (m) { return m.date && saisonDe(m.date) === sais; })
+    .sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+  var avenir = liste.filter(function (m) { return new Date(m.date) >= auj; });
+  var passes = liste.filter(function (m) { return new Date(m.date) < auj; });
+  var h = '<div class="row">' + selSaison() +
+    '<button data-a="form-match">+ Ajouter un match</button></div>';
+  if (S.form && S.form.type === 'match') h += formMatch();
+  h += '<h2>À venir (' + avenir.length + ')</h2>';
+  h += avenir.length ? avenir.map(carteMatch).join('') : '<p class="muted">Aucun match à venir pour cette saison. Ajoute-les avec « + Ajouter un match ».</p>';
+  h += '<p><button class="sec" data-a="passes">' + (S.passes ? 'Masquer' : 'Afficher') + ' les matchs passés (' + passes.length + ')</button></p>';
+  if (S.passes) h += passes.map(carteMatch).join('');
+  return h;
+}
+function formMatch() {
+  return '<div class="card"><form data-form="match"><h2 style="margin-top:0">Nouveau match à domicile</h2>' +
+    '<div class="row"><label>Adversaire<input id="m-adv" required></label><label>Compétition<input id="m-comp" placeholder="Ligue 1, Ligue des champions…"></label></div>' +
+    '<div class="row"><label>Date et heure<input id="m-date" type="datetime-local" required></label><label>Prix de départ de la paire (€)<input id="m-prix" type="number" min="0" step="1"></label></div>' +
+    '<p><button type="submit">Ajouter</button> <button type="button" class="sec" data-a="annuler">Annuler</button></p></form></div>';
+}
+function carteMatch(m) {
+  var pc = prixConseille(m);
+  var h = '<div class="card"><div class="row" style="margin-top:0"><strong>PSG – ' + esc(m.adversaire) + '</strong>' +
+    '<span class="muted">' + esc(fmtDate(m.date)) + '</span></div>' +
+    '<div class="muted">' + esc(m.competition || '') + '</div>' +
+    '<div class="row"><label>Statut<select data-ch="statut" data-id="' + esc(m.id) + '">' + opts(STATUTS, m.statut) + '</select></label>' +
+    '<label>Prix de départ de la paire (€)<input type="number" inputmode="decimal" min="0" step="1" value="' + esc(m.prixDepart || '') + '" data-ch="prix" data-id="' + esc(m.id) + '"></label></div>';
+  if (pc != null && (m.statut === 'pas_ouverte' || m.statut === 'ouverte' || m.statut === 'en_vente')) {
+    h += '<div class="hint">Prix conseillé aujourd\'hui : <strong>' + eur(pc) + '</strong> la paire</div>';
+  }
+  if (S.form && S.form.type === 'vente' && S.form.matchId === m.id) h += formVente(m);
+  else h += '<div class="row"><button data-a="form-vente" data-id="' + esc(m.id) + '">Vendue ?</button></div>';
+  return h + '</div>';
+}
+function formVente(m) {
+  var def = m.prixDepart || '';
+  var com = def ? r2(def * (S.main.commission != null ? S.main.commission : CFG.commissionRate)) : '';
+  return '<form data-form="vente" data-id="' + esc(m.id) + '" class="hint">' +
+    '<div class="row"><label>Prix total de la vente, avant commission (€)<input id="v-prix" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(def) + '" required></label>' +
+    '<label>Commission du club (€)<input id="v-com" type="number" inputmode="decimal" step="0.01" min="0" value="' + esc(com) + '" required></label></div>' +
+    '<div class="row"><label>Nombre de places<select id="v-pl"><option>2</option><option>1</option></select></label>' +
+    '<label>Encaissé par<select id="v-enc">' + persOpts(moi() || 'p1') + '</select></label>' +
+    '<label>Règlement du club<select id="v-reg">' + opts(REGLEMENT, 'attente') + '</select></label></div>' +
+    '<p><button type="submit">Enregistrer la vente</button> <button type="button" class="sec" data-a="annuler">Annuler</button></p></form>';
+}
+
+/* ----- Ventes ----- */
+function vueVentes() {
+  var sais = saisonCourante();
+  var parMatch = {}; S.matches.forEach(function (m) { parMatch[m.id] = m; });
+  var lignes = S.ventes.v.filter(function (x) {
+    var m = parMatch[x.matchId]; return m && m.date && saisonDe(m.date) === sais;
+  }).sort(function (a, b) { return new Date(parMatch[a.matchId].date) - new Date(parMatch[b.matchId].date); });
+  var tot = { prix: 0, com: 0, net: 0, verse: 0, attente: 0 };
+  lignes.forEach(function (x) {
+    tot.prix += x.prix; tot.com += x.commission; tot.net += x.net;
+    if (x.reglementClub === 'verse') tot.verse += x.net; else tot.attente += x.net;
+  });
+  var h = '<div class="row">' + selSaison() + '</div>';
+  if (!lignes.length) return h + '<p class="muted">Aucune vente enregistrée pour cette saison.</p>';
+  h += '<div class="card scroll"><table><thead><tr><th>Match</th><th class="n">Prix</th><th class="n">Comm.</th><th class="n">Net</th><th>Encaissé</th><th>Club</th><th></th></tr></thead><tbody>';
+  lignes.forEach(function (x) {
+    var m = parMatch[x.matchId];
+    h += '<tr><td>' + esc(m.adversaire) + '<br><span class="muted">' + esc(fmtDate(m.date)) + ' · ' + esc(x.places) + ' pl.</span></td>' +
+      '<td class="n">' + eur(x.prix) + '</td><td class="n">' + eur(x.commission) + '</td><td class="n">' + eur(x.net) + '</td>' +
+      '<td>' + esc(nom(x.encaissePar)) + '</td>' +
+      '<td><select data-ch="reglement" data-vid="' + esc(x.id) + '">' + opts(REGLEMENT, x.reglementClub) + '</select></td>' +
+      '<td><button class="danger" data-a="suppr-vente" data-vid="' + esc(x.id) + '">Suppr.</button></td></tr>';
+  });
+  h += '</tbody><tfoot><tr><th>Total</th><th class="n">' + eur(tot.prix) + '</th><th class="n">' + eur(tot.com) + '</th><th class="n">' + eur(tot.net) + '</th><th colspan="3"></th></tr></tfoot></table></div>';
+  h += '<p class="muted">Net versé par le club : <strong>' + eur(tot.verse) + '</strong> · en attente : <strong>' + eur(tot.attente) + '</strong></p>';
+  return h;
+}
+
+/* ----- Réglages ----- */
+function vueReglages() {
+  var g = S.main.grille || GRILLE_DEFAUT;
+  var c = S.main.commission != null ? S.main.commission : CFG.commissionRate;
+  var a1 = (S.abos.p1 || {}), a2 = (S.abos.p2 || {});
+  return '<div class="card"><h2 style="margin-top:0">Prix et commission</h2><form data-form="reglages">' +
+    '<div class="row"><label>Commission du club (%)<input id="r-com" type="number" step="0.1" min="0" value="' + esc(r2(c * 100)) + '"></label></div>' +
+    '<p class="muted">Baisse du prix de départ à l\'approche du match :</p>' +
+    '<div class="row"><label>J-7 (%)<input id="r-j7" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j7 * 100)) + '"></label>' +
+    '<label>J-3 (%)<input id="r-j3" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j3 * 100)) + '"></label>' +
+    '<label>J-1 (%)<input id="r-j1" type="number" step="1" min="0" max="100" value="' + esc(Math.round(g.j1 * 100)) + '"></label></div>' +
+    '<h2>Abonnements ' + esc(saisonCourante()) + '</h2>' +
+    '<div class="row"><label>' + esc(nom('p1')) + ' : prix (€)<input id="r-a1" type="number" step="0.01" min="0" value="' + esc(a1.prix || '') + '"></label>' +
+    '<label>' + esc(nom('p2')) + ' : prix (€)<input id="r-a2" type="number" step="0.01" min="0" value="' + esc(a2.prix || '') + '"></label></div>' +
+    '<p><button type="submit">Enregistrer</button></p></form></div>' +
+    '<div class="card"><h2 style="margin-top:0">Importer un historique</h2>' +
+    '<p class="muted">Choisis le fichier JSON d\'historique (ventes et matchs). Les données existantes du même match sont remplacées.</p>' +
+    '<input type="file" id="imp" accept="application/json,.json"></div>';
+}
+
+/* ---------- Actions ---------- */
+function setFormMsg(e, i) { S.erreur = e || ''; S.info = i || ''; }
+
+var actions = {
+  logout: function (d, e) { e.preventDefault(); auth.signOut(); },
+  tab: function (d) { S.tab = d.k; S.form = null; setFormMsg(); render(true); },
+  passes: function () { S.passes = !S.passes; render(true); },
+  'form-match': function () { S.form = { type: 'match' }; setFormMsg(); render(true); },
+  'form-vente': function (d) { S.form = { type: 'vente', matchId: d.id }; setFormMsg(); render(true); },
+  annuler: function () { S.form = null; setFormMsg(); render(true); },
+  'suppr-vente': function (d) {
+    if (!confirm('Supprimer cette vente ?')) return;
+    var vid = d.vid, matchId = null;
+    mutVentes(function (v, t) {
+      v.forEach(function (x) { if (x.id === vid) matchId = x.matchId; });
+      return { v: v.filter(function (x) { return x.id !== vid; }), t: t };
+    }).then(function () {
+      if (matchId) return db.doc('revente_matches/' + matchId).update({ statut: 'en_vente' });
+    }).catch(surErreur);
+  }
+};
+
+app.addEventListener('click', function (e) {
+  var t = e.target.closest('[data-a]');
+  if (!t || !actions[t.dataset.a]) return;
+  actions[t.dataset.a](t.dataset, e);
+});
+
+app.addEventListener('change', function (e) {
+  var t = e.target, k = t.dataset && t.dataset.ch;
+  if (t.id === 'imp') { importer(t.files && t.files[0]); return; }
+  if (!k) return;
+  if (k === 'saison') { S.saison = t.value; render(true); }
+  else if (k === 'statut') db.doc('revente_matches/' + t.dataset.id).update({ statut: t.value }).catch(surErreur);
+  else if (k === 'prix') db.doc('revente_matches/' + t.dataset.id).update({ prixDepart: num(t.value) || null }).catch(surErreur);
+  else if (k === 'reglement') {
+    var vid = t.dataset.vid, val = t.value;
+    mutVentes(function (v, tr) {
+      return { v: v.map(function (x) { if (x.id === vid) x.reglementClub = val; return x; }), t: tr };
+    }).catch(surErreur);
+  }
+});
+
+app.addEventListener('input', function (e) {
+  if (e.target.id === 'v-prix') {
+    var c = S.main.commission != null ? S.main.commission : CFG.commissionRate;
+    $('v-com').value = r2(num(e.target.value) * c);
+  }
+});
+
+app.addEventListener('focusout', function () {
+  setTimeout(function () { if (pending) render(); }, 250);
+});
+
+app.addEventListener('submit', function (e) {
+  e.preventDefault();
+  var f = e.target.dataset.form;
+  setFormMsg();
+  if (f === 'login') {
+    auth.signInWithEmailAndPassword($('l-mail').value.trim(), $('l-pass').value).catch(function () {
+      S.erreur = 'Adresse ou mot de passe incorrect.'; render(true);
+    });
+  } else if (f === 'setup') {
+    var main = {
+      noms: { p1: $('s-n1').value.trim(), p2: $('s-n2').value.trim() },
+      emails: { p1: $('s-e1').value.trim().toLowerCase(), p2: $('s-e2').value.trim().toLowerCase() },
+      grille: GRILLE_DEFAUT, commission: CFG.commissionRate
+    };
+    db.doc('revente_config/main').set(main).catch(surErreur);
+  } else if (f === 'match') {
+    var adv = $('m-adv').value.trim(), date = $('m-date').value;
+    var id = date.slice(0, 10) + '-' + slug(adv);
+    db.doc('revente_matches/' + id).set({
+      adversaire: adv, competition: $('m-comp').value.trim(), date: date,
+      prixDepart: num($('m-prix').value) || null, statut: 'pas_ouverte',
+      creeLe: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function () { S.form = null; S.saison = saisonDe(date); render(true); }).catch(surErreur);
+  } else if (f === 'vente') {
+    var matchId = e.target.dataset.id;
+    var prix = num($('v-prix').value), com = num($('v-com').value);
+    var rec = {
+      id: 'v-' + matchId, matchId: matchId, places: parseInt($('v-pl').value, 10),
+      prix: r2(prix), commission: r2(com), net: r2(prix - com),
+      encaissePar: $('v-enc').value, reglementClub: $('v-reg').value,
+      source: 'manuel', saisiPar: moi() || 'p1'
+    };
+    mutVentes(function (v, t) {
+      return { v: v.filter(function (x) { return x.id !== rec.id; }).concat([rec]), t: t };
+    }).then(function () {
+      return db.doc('revente_matches/' + matchId).update({ statut: 'vendue' });
+    }).then(function () { S.form = null; render(true); }).catch(surErreur);
+  } else if (f === 'reglages') {
+    var g = { j7: num($('r-j7').value) / 100, j3: num($('r-j3').value) / 100, j1: num($('r-j1').value) / 100 };
+    var sais = saisonCourante();
+    var abos = {
+      p1: { prix: num($('r-a1').value), saison: sais },
+      p2: { prix: num($('r-a2').value), saison: sais }
+    };
+    Promise.all([
+      db.doc('revente_config/main').set({ grille: g, commission: num($('r-com').value) / 100 }, { merge: true }),
+      db.doc('revente_config/abonnements').set(abos, { merge: true })
+    ]).then(function () { setFormMsg('', 'Réglages enregistrés.'); render(true); }).catch(surErreur);
+  }
+});
+
+/* ---------- Import de l'historique ---------- */
+var PERS = { A: 'p1', B: 'p2', p1: 'p1', p2: 'p2' };
+function importer(file) {
+  if (!file) return;
+  var rd = new FileReader();
+  rd.onload = function () {
+    var j;
+    try { j = JSON.parse(rd.result); } catch (x) { S.erreur = 'Fichier illisible (JSON invalide).'; render(true); return; }
+    var ventes = j.ventes || [], enVente = j.enVente || [];
+    if (!ventes.length && !enVente.length) { S.erreur = 'Aucune vente trouvée dans ce fichier.'; render(true); return; }
+    if (!confirm('Importer ' + ventes.length + ' vente(s) et ' + enVente.length + ' match(s) en vente ?')) return;
+    var batch = db.batch(), recs = [];
+    function matchDoc(x, statut) {
+      var id = x.date + '-' + slug(x.match);
+      batch.set(db.doc('revente_matches/' + id), {
+        adversaire: x.match, competition: x.competition || '', date: x.date, statut: statut
+      }, { merge: true });
+      return id;
+    }
+    ventes.forEach(function (x) {
+      var id = matchDoc(x, 'vendue');
+      recs.push({
+        id: 'v-' + id, matchId: id, places: x.places || 2, prix: r2(x.prix), commission: r2(x.commission),
+        net: r2(x.net != null ? x.net : x.prix - x.commission), encaissePar: PERS[x.encaissePar] || 'p1',
+        reglementClub: x.reglementClub === 'verse' ? 'verse' : 'attente', source: x.source || 'billetterie', saisiPar: moi() || 'p1'
+      });
+    });
+    enVente.forEach(function (x) {
+      var id = matchDoc(x, 'en_vente');
+      if (x.prix) batch.set(db.doc('revente_matches/' + id), { prixDepart: x.prix }, { merge: true });
+    });
+    if (j.abonnements && j.saison) {
+      var abos = {};
+      j.abonnements.forEach(function (a) { if (PERS[a.personne]) abos[PERS[a.personne]] = { prix: a.prix, places: a.places || 1, saison: j.saison }; });
+      batch.set(db.doc('revente_config/abonnements'), abos, { merge: true });
+    }
+    batch.commit().then(function () {
+      return mutVentes(function (v, t) {
+        var ids = {}; recs.forEach(function (r) { ids[r.id] = 1; });
+        return { v: v.filter(function (x) { return !ids[x.id]; }).concat(recs), t: t };
+      });
+    }).then(function () {
+      setFormMsg('', 'Import terminé : ' + ventes.length + ' vente(s).'); S.tab = 'ventes'; render(true);
+    }).catch(surErreur);
+  };
+  rd.readAsText(file);
+}
+
+render(true);
+})();
+</script>
+</body>
+</html>

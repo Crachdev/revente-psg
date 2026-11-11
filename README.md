@@ -13,13 +13,20 @@ Application privée pour suivre la revente de places d'abonnement (Paris Saint-G
 
 ## Données (Firebase, plan gratuit)
 
-- `psg_matches` : un document par match à domicile (statut, prix de départ, paliers de baisse).
-- `psg_config/main` : grille de prix, dernière vérification, clé web push.
-- `psg_config/ventes` : les ventes (`v`) et les virements entre les deux personnes (`t`).
-- `psg_config/abonnements` : un abonnement par personne (prix, saison, places).
-- `psg_config/push` : appareils qui reçoivent les notifications.
+- `revente_matches` : un document par match à domicile (adversaire, date, statut, prix de départ).
+- `revente_config/main` : les deux personnes (prénoms et e-mails, saisis dans l'appli au premier lancement), grille de baisse de prix, commission, clé web push.
+- `revente_config/ventes` : les ventes (`v`) et les virements entre les deux personnes (`t`).
+- `revente_config/abonnements` : un abonnement par personne (prix, saison, places).
+- `revente_config/push` : appareils qui reçoivent les notifications.
 
 Une vente contient : `matchId`, nombre de places, prix, commission, net, qui a encaissé, règlement du club (versé / en attente), origine de la donnée (billetterie ou saisie manuelle) et auteur de la saisie.
+
+## Utilisation
+
+- Onglet Matchs : liste des matchs de la saison, statut modifiable, prix de départ de la paire, prix conseillé du jour (baisse à J-7, J-3 et J-1, réglable), bouton « Vendue ? » qui enregistre la vente.
+- Onglet Ventes : prix, commission, net, qui a encaissé, règlement du club (versé / en attente), totaux de la saison.
+- Onglet Réglages : commission, paliers de baisse, prix des abonnements, import d'un fichier d'historique (JSON).
+- Au premier lancement, l'appli demande les deux personnes (prénoms et e-mails de connexion) : ces informations restent dans la base privée.
 
 ## Sécurité
 
@@ -35,8 +42,8 @@ Une vente contient : `matchId`, nombre de places, prix, commission, net, qui a e
 
 ## Feuille de route
 
-1. Base : dépôt, règles de sécurité, configuration.
-2. Cœur : matchs, statuts, prix et paliers, enregistrement des ventes.
+1. Base : dépôt, règles de sécurité, configuration. (fait)
+2. Cœur : matchs, statuts, prix et paliers, enregistrement des ventes, import. (fait)
 3. Finances : encaissements, règlement du club, bilans, export Excel.
 4. Fiabilité : hors connexion, sauvegarde et restauration.
 5. Alertes : mail et push quotidiens.
