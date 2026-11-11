@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+# Jamais de clé de compte de service ni de sauvegarde dans le dépôt public
+*service-account*.json
+sauvegarde-*.json
+import-*.json
