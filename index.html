@@ -826,6 +826,9 @@ function bilanView(){
   var abo=abos.filter(function(a){return a.season===sea;}).reduce(function(a,x){return a+(num(x.amount)||0);},0);
   var n=Math.max(1,sellers().length),perP=tot/n,aboP=abos.filter(function(a){return a.season===sea;}).length?abo/abos.filter(function(a){return a.season===sea;}).length:0;
   function li(l,v){return '<li><span>'+l+'</span><b>'+v+'</b></li>';}
+  var feeT=sales.reduce(function(a,v){return a+(v.fee||0);},0),grossT=sales.reduce(function(a,v){return a+(v.price||0);},0);
+  var open=ms.filter(function(m){return daysBetween(today,m.date)>=0&&['vendue','gardee','pretee','nonvendue'].indexOf(m.status)<0;}).length;
+  var proj=nets.length&&open?tot+open*avg:null;
   var h='<section class="panel" aria-labelledby="h-bil"><h2 id="h-bil">Bilan de la saison '+esc(sea)+'</h2><ul class="tiers bil">'+
     li('Matchs à domicile',ms.length+' ('+played.length+' joués, '+coming+' à venir)')+
     li('Vendus',c.vendue+(rate!==null?' · '+rate+' % des matchs tentés':''))+
@@ -835,9 +838,11 @@ function bilanView(){
     li('Net moyen par vente',nets.length?eur(avg):'—')+
     li('Meilleure vente (net)',nets.length?eur(best):'—')+
     (dl!==null?li('Délai moyen mise en vente → vente',dl+' j'):'')+
+    li('Commission payée au club',sales.length?eur(feeT)+(grossT?' ('+Math.round(feeT/grossT*1000)/10+' % du brut)':''):'—')+
     li('Net total / par personne',eur(tot)+' / '+eur(perP))+
+    (proj!==null?li('Projection fin de saison (estimation)',eur(proj)+' / '+eur(proj/n)+' par pers.'):'')+
     (aboP?li('Reste à couvrir par personne',perP>=aboP?'Abonnement remboursé (+'+eur(perP-aboP)+')':eur(aboP-perP)):'')+
-    '</ul></section>';
+    '</ul>'+(proj!==null?'<p class="note">Projection : net déjà vendu + '+open+' match'+(open>1?'s':'')+' restant'+(open>1?'s':'')+' à vendre au net moyen par vente ('+eur(avg)+'). C’est une estimation, pas une promesse.</p>':'')+'</section>';
   return h;
 }
 
