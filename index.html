@@ -101,6 +101,8 @@ details[open]>summary .chev{transform:rotate(225deg);margin-top:3px}
 .tiers li{padding:8px 4px;border:1px solid var(--line);border-radius:8px;text-align:center;background:var(--surface)}
 .tiers li.cur{border-color:var(--accent);background:var(--accent-soft)}
 .tiers span{display:block;font-size:12px;color:var(--muted)}
+.tiers.bil{grid-template-columns:1fr;gap:0}.tiers.bil li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:10px 2px}.tiers.bil li:last-child{border-bottom:0}.tiers.bil span{display:inline;font-size:14px}.tiers.bil b{display:inline;font-size:17px;text-align:right}
+.pend{margin:0 0 8px;font-weight:600}
 .tiers b{display:block;font-family:var(--f-display);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .fld{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -175,8 +177,8 @@ tr.tot th,tr.tot td{font-weight:700;border-top:2px solid var(--line)}
 .rchart .dt{fill:var(--accent);stroke:var(--bg);stroke-width:1.5}
 .rchart .be{fill:none;stroke:var(--good);stroke-width:2.5}
 .cmp{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
-.cmp li{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) 3.2em;gap:10px;align-items:center}
-.cmp b{text-align:right;font-variant-numeric:tabular-nums}
+.cmp li{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) 4.6em;gap:10px;align-items:center}
+.cmp b{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
 .cmpl{font-size:13px;color:var(--muted)}
 .verdict{font-size:18px;line-height:1.3}
 .warn-n{color:var(--warn)}
@@ -814,8 +816,8 @@ function bilanView(){
   var ms=matches.filter(function(m){return m&&m.date&&seasonOf(m.date)===sea;});
   if(!ms.length)return '';
   var played=ms.filter(function(m){return daysBetween(today,m.date)<0;}),coming=ms.length-played.length;
-  var c={vendue:0,pretee:0,gardee:0,nonvendue:0,autre:0};
-  played.forEach(function(m){if(c[m.status]!==undefined)c[m.status]++;else c.autre++;});
+  var c={vendue:0,pretee:0,gardee:0,nonvendue:0,autre:0,used:0};
+  played.forEach(function(m){if(m.status==='gardee'&&m.usedBy)c.used++;else if(c[m.status]!==undefined)c[m.status]++;else c.autre++;});
   var sales=ventes.filter(function(v){return seasonOfSale(v)===sea;}),nets=sales.map(netOf);
   var tot=nets.reduce(function(a,b){return a+b;},0),avg=nets.length?tot/nets.length:0,best=nets.length?Math.max.apply(null,nets):0;
   var tried=c.vendue+c.nonvendue,rate=tried?Math.round(c.vendue/tried*100):null;
@@ -824,10 +826,11 @@ function bilanView(){
   var abo=abos.filter(function(a){return a.season===sea;}).reduce(function(a,x){return a+(num(x.amount)||0);},0);
   var n=Math.max(1,sellers().length),perP=tot/n,aboP=abos.filter(function(a){return a.season===sea;}).length?abo/abos.filter(function(a){return a.season===sea;}).length:0;
   function li(l,v){return '<li><span>'+l+'</span><b>'+v+'</b></li>';}
-  var h='<section class="panel" aria-labelledby="h-bil"><h2 id="h-bil">Bilan de la saison '+esc(sea)+'</h2><ul class="tiers">'+
+  var h='<section class="panel" aria-labelledby="h-bil"><h2 id="h-bil">Bilan de la saison '+esc(sea)+'</h2><ul class="tiers bil">'+
     li('Matchs à domicile',ms.length+' ('+played.length+' joués, '+coming+' à venir)')+
     li('Vendus',c.vendue+(rate!==null?' · '+rate+' % des matchs tentés':''))+
     li('Non vendus / prêtés / gardés',c.nonvendue+' / '+c.pretee+' / '+c.gardee)+
+    (c.used?li('Places utilisées par nous (non vendues)',String(c.used)):'')+
     (c.autre?li('Issue à renseigner',String(c.autre)):'')+
     li('Net moyen par vente',nets.length?eur(avg):'—')+
     li('Meilleure vente (net)',nets.length?eur(best):'—')+
@@ -869,6 +872,16 @@ function statsView(){
   else h+='<p class="note">Prédictions disponibles dès 3 ventes ; plus il y a de matchs, plus elles sont fiables. Les dates d’ouverture, de mise en vente et de vente sont enregistrées automatiquement quand tu utilises les boutons de l’appli.</p>';
   return h+'</section>';
 }
+function pendingView(){
+  var pl=ventes.filter(function(v){return v.reglement==='attente';}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));});
+  if(!pl.length)return '';
+  var n=Math.max(1,sellers().length),tot=pl.reduce(function(a,v){return a+netOf(v);},0);
+  function fr(d){var a=String(d).split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:esc(d);}
+  return '<section class="panel" aria-labelledby="h-pend"><h2 id="h-pend">Règlements du club en attente</h2>'+
+    '<p class="pend">'+eur(tot)+' à recevoir · '+eur(tot/n)+' par personne · '+pl.length+' vente'+(pl.length>1?'s':'')+'</p>'+
+    '<div class="vlist">'+pl.map(function(v){return '<div class="vrow"><div class="vhead"><b>'+esc(v.label||'Vente')+' · '+eur(netOf(v))+'</b><span class="muted">match du '+fr(v.date)+(v.note?' · '+esc(v.note):'')+(v.seller===SPLIT&&n>1?' · '+eur(netOf(v)/n)+' chacun':'')+'</span></div></div>';}).join('')+'</div>'+
+    '<p class="note">Le club verse l’argent le soir du match. Compare avec ton relevé bancaire, puis passe la vente en « versé » dans le détail des ventes.</p></section>';
+}
 function financeSimple(){
   var list=sortedVentes(),tot=list.reduce(function(a,v){return a+netOf(v);},0),b=balance(),rs=abos.map(roiOf);
   var h='<section class="panel" aria-labelledby="h-fin"><h2 id="h-fin">En un coup d’œil</h2>'+
@@ -877,6 +890,7 @@ function financeSimple(){
   var msg=!ventes.length?'Aucune vente pour l’instant.':(!debt.length?'Les comptes sont à jour.':(debt.length===1&&cred.length===1?'<b>'+esc(debt[0].n)+' doit '+eur(debt[0].bal)+' à '+esc(cred[0].n)+'.</b>':b.rows.map(function(r){return esc(r.n)+' : '+(r.bal>0?'doit '+eur(r.bal):r.bal<0?'doit recevoir '+eur(-r.bal):'à jour');}).join(' · ')));
   h+='<p class="verdict">'+msg+'</p></section>';
   h+=checkView();
+  h+=pendingView();
   h+=bilanView();
   if(rs.length)h+='<section class="panel" aria-labelledby="h-roi"><h2 id="h-roi">Rentabilité de l’abonnement</h2><ul class="cmp">'+rs.map(function(R){var p=Math.min(100,R.pct);return '<li><span class="cmpl">'+esc(R.abo.season)+' · '+esc(R.abo.person)+'</span><span class="bar"><i class="'+(R.share>=R.abo.amount&&R.abo.amount>0?'ok':'')+'" style="width:'+p.toFixed(1)+'%"></i></span><b>'+Math.round(R.pct)+' %</b></li>';}).join('')+'</ul><p class="note">'+rs.map(function(R){return esc(R.abo.person)+' : '+eur(R.share)+' récupérés sur '+eur(R.abo.amount)+(R.left>0?' (reste '+eur(R.left)+')':' (abonnement remboursé)');}).join(' · ')+'</p></section>';
   return h;
@@ -890,6 +904,7 @@ function financeView(){
     '<button type="button" class="btn" data-act="export"'+(list.length?'':' disabled')+'>Exporter en Excel</button>'+
     '<p class="note">Une vente = une paire de places. Le net est le prix de vente moins la commission du club ; « par personne » est la moitié du net. Saison du 1er août au 31 juillet (celle du match vendu), année fiscale = année civile de la date de vente.</p></section>';
   h+=checkView();
+  h+=pendingView();
   h+=bilanView();
   h+=roiView();
   h+=statsView();
