@@ -467,7 +467,7 @@ function learned(){
   var obs=matches.filter(function(m){return m.openedOn&&m.date;}).map(function(m){return {m:m,j:daysBetween(m.openedOn,m.date)};}).filter(function(o){return o.j>=0;});
   var body;
   if(!obs.length){
-    body='<p class="sub">Note la date où un match apparaît dans le filtre « revente ouverte ». Après deux ou trois matchs, vous saurez à partir de quel jour surveiller.</p>';
+    body='<p class="sub">Note la date où le lien « Revente de billets » apparaît sur un match de la billetterie. Après deux ou trois matchs, vous saurez à partir de quel jour surveiller.</p>';
   }else{
     var js=obs.map(function(o){return o.j;}),sum=js.reduce(function(a,b){return a+b;},0);
     var avg=Math.round(sum/js.length),mn=Math.min.apply(null,js),mx=Math.max.apply(null,js);
@@ -614,8 +614,8 @@ function render(){
   if(state==='ok')h+=tabsNav()+viewBar();
   if(state==='ok'&&syncErr&&navigator.onLine!==false)h+='<p class="msg-err" role="alert">Synchronisation interrompue : les données affichées peuvent ne pas être à jour. <button type="button" class="link" data-act="retry">Réessayer</button></p>';
   if(!fin)h+='<section class="panel" aria-labelledby="h-cta"><h2 id="h-cta">Revente ouverte quelque part ?</h2>'+
-    '<p class="sub">Le filtre du site liste seulement les matchs dont la revente est ouverte.</p>'+
-    '<a class="btn" href="'+URL_OPEN+'" target="_blank" rel="noopener">Voir les matchs à revente ouverte</a>'+
+    '<p class="sub">Sur la billetterie, un lien « Revente de billets » apparaît sur les matchs dont la revente est ouverte.</p>'+
+    '<a class="btn" href="'+URL_OPEN+'" target="_blank" rel="noopener">Ouvrir la billetterie PSG</a>'+
     '<div class="cta-row"><button type="button" class="btn ghost" data-act="check"'+(state==='ok'?'':' disabled')+'>J’ai vérifié</button><span class="muted">'+esc(lastCheckText())+'</span></div>'+
     '<p class="links"><a href="'+URL_ALL+'" target="_blank" rel="noopener">Calendrier complet</a> · <a href="'+URL_PLAT+'" target="_blank" rel="noopener">Plateforme de revente du club</a></p></section>';
   if(state==='loading'){
@@ -764,7 +764,7 @@ function roiCard(R){
   var a=R.abo,done=R.share>=a.amount&&a.amount>0,pct=Math.min(100,R.pct);
   var verdict=!a.amount?'Montant de l’abonnement à renseigner.':done?'Abonnement amorti : <b>+'+eur(r2(R.share-a.amount))+'</b> de gain.':'Il reste <b>'+eur(R.left)+'</b> à rembourser.';
   var locked=a.source==='billetterie';
-  var h='<section class="panel roi" aria-label="Rentabilité '+esc(a.person)+' '+esc(a.season)+'"><div class="roih"><h2>Saison '+esc(a.season)+' · '+esc(a.person)+'</h2>'+(locked?'<span class="src bil"><span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span> Commande n° '+esc(a.ref||'?')+' · billetterie</span>':'<span class="src man">Informations saisies manuellement'+(a.by?' (par '+esc(a.by)+')':'')+'</span>')+'</div>'+
+  var h='<section class="panel roi" aria-label="Rentabilité '+esc(a.person)+' '+esc(a.season)+'"><div class="roih"><h2>Saison '+esc(a.season)+' · '+esc(a.person)+'</h2>'+(locked?'<span class="src bil"><span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span> '+(a.ref?'Commande n° '+esc(a.ref)+' · ':'')+'billetterie</span>':'<span class="src man">Informations saisies manuellement'+(a.by?' (par '+esc(a.by)+')':'')+'</span>')+'</div>'+
     '<div class="roip"><b class="big'+(done?' ok':'')+'">'+Math.round(R.pct)+' %</b><span class="cap">de l’abonnement remboursé</span></div>'+
     '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(pct)+'"><i class="'+(done?'ok':'')+'" style="width:'+pct.toFixed(1)+'%"></i></div>'+
     '<p class="verdict">'+verdict+'</p>'+
@@ -922,7 +922,7 @@ function financeView(){
         '<div class="grid">'+f('Date','date',v.date,'date')+f('Prix (€)','price',v.price,'number')+f('Commission (€)','fee',v.fee,'number')+f('Libellé','label',v.label,'text')+
           '<div class="fld"><label for="vf-seller-'+esc(v.id)+'">Argent reçu par</label><select id="vf-seller-'+esc(v.id)+'"'+(lockedVente(v,'seller')?' disabled':'')+' data-vf="seller" data-vid="'+esc(v.id)+'">'+selOpts(v.seller,true)+'</select></div>'+
           '<div class="fld"><label for="vf-reglement-'+esc(v.id)+'">Règlement du club</label><select id="vf-reglement-'+esc(v.id)+'" data-vf="reglement" data-vid="'+esc(v.id)+'"><option value="verse"'+(v.reglement!=='attente'?' selected':'')+'>Versé</option><option value="attente"'+(v.reglement==='attente'?' selected':'')+'>En attente</option></select></div></div>'+
-        (vl?'<p class="note">Verrouillé : montants et vendeur récupérés depuis la billetterie. Seul le statut du règlement reste modifiable.</p>':'<button type="button" class="btn ghost small" data-act="delvente" data-id="'+esc(v.id)+'">Supprimer cette vente</button>')+'</details>';
+        (vl?'<p class="note">Verrouillé : prix, commission et date récupérés depuis la billetterie. Le règlement et la personne qui a reçu l’argent restent modifiables.</p>':'<button type="button" class="btn ghost small" data-act="delvente" data-id="'+esc(v.id)+'">Supprimer cette vente</button>')+'</details>';
     }).join('')+'</div></section>';
   }
   return h;
@@ -1060,9 +1060,10 @@ function copyText(v){
 }
 
 /* ---------- données (Firestore) ---------- */
-var SEED=[['m01','Roma','2026-11-25',null,false,'LDC','vendue',598],['m02','Lorient','2026-11-28',null,false,'L1','vendue',250],['m03','Paris FC','2026-12-12',null,false,'L1','vendue',300],
-['m04','Auxerre','2027-01-23',null,false,'L1','vendue',220],['m05','Galatasaray','2027-01-27',null,false,'LDC','enligne',598],['m06','Marseille','2027-02-07',null,false,'L1','vendue',598],
-['m07','Rennes','2027-03-07',null,false,'L1','vendue',258]];
+var SEED=[['m01','Roma','2026-11-25','21:00',false,'LDC','vendue',598],['m02','Lorient','2026-11-28','20:45',false,'L1','vendue',250],['m03','Paris FC','2026-12-12','17:45',false,'L1','vendue',300],
+['m04','Auxerre','2027-01-23','20:45',false,'L1','vendue',220],['m05','Galatasaray','2027-01-27','21:00',false,'LDC','enligne',598],['m06','Marseille','2027-02-07','20:45',false,'L1','vendue',598],
+['m08','Brest','2027-02-20',null,false,'L1'],['m09','Lens','2027-02-27',null,false,'L1'],
+['m07','Rennes','2027-03-07','20:45',false,'L1','vendue',258],['m10','Strasbourg','2027-03-20',null,false,'L1']];
 
 function aref(){return db.collection('revente_config').doc('abonnements');}
 function vref(){return db.collection('revente_config').doc('ventes');}
@@ -1076,7 +1077,7 @@ async function seedIfEmpty(){
   SEED.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i+1,opp:m[1],date:m[2],time:m[3],weekend:m[4],comp:m[5]||'',status:m[6]||'attente',paid:null,floor:null,listed:m[7]==null?null:m[7],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
   await b.commit();
 }
-var PAST=[['p01','Monaco','2026-09-04',null,'L1',300],['p06','Slovan Bratislava','2026-09-09',null,'LDC',null,'Sylvain'],['p02','Le Mans','2026-10-10',null,'L1',232],['p03','Barcelone','2026-10-20',null,'LDC',998],['p04','Lyon','2026-10-26',null,'L1',398],['p05','Troyes','2026-11-07',null,'L1',220]];
+var PAST=[['p01','Monaco','2026-09-04','21:05','L1',300],['p06','Slovan Bratislava','2026-09-09',null,'LDC',null,'Sylvain'],['p02','Le Mans','2026-10-10','20:45','L1',232],['p03','Barcelone','2026-10-20','21:00','LDC',998],['p04','Lyon','2026-10-26','20:30','L1',398],['p05','Troyes','2026-11-07','21:05','L1',220]];
 async function seedPastIfMissing(){
   var s=await mref().doc('p01').get();
   if(s.exists)return;
