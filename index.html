@@ -244,7 +244,7 @@ var URL_OPEN='https://billetterie.psg.fr/fr/';
 var URL_ALL='https://billetterie.psg.fr/fr/';
 var URL_PLAT='https://billetterie.psg.fr/fr/account/sales';
 var DEF={basePrice:null,markup:0,drop7:10,drop3:20,floorPct:50,watchFrom:21,lastCheck:null,lastCheckBy:null};
-var STATUS=[['attente','Pas encore ouverte'],['ouverte','Ouverte, à poster'],['enligne','En vente'],['vendue','Vendue'],['pretee','Prêtée'],['nonvendue','Non vendue'],['gardee','Je garde']];
+var STATUS=[['attente','Pas encore ouverte'],['ouverte','Ouverte, à poster'],['enligne','En vente'],['vendue','Vendue'],['pretee','Prêtée'],['nonvendue','Non vendue'],['gardee','Utilisée par nous']];
 var STATUS_LABEL={};STATUS.forEach(function(s){STATUS_LABEL[s[0]]=s[1];});
 
 var db=null, auth=null, unsubs=[], cfg=Object.assign({},DEF), matches=[], openSet=new Set(), ventes=[], transfers=[], abos=[], tab='matchs', fullView=(function(){try{return localStorage.getItem('psg-view')==='full';}catch(_){return false;}})();
@@ -387,7 +387,7 @@ function card(r){
   var lockF=lockFull(m),lockN=lockFin(m);
   var px='—',cap='prix à définir';
   if(m.status==='vendue'){px='Vendue';cap=listed!=null?eur(listed):'';}
-  else if(m.status==='gardee'){px=m.usedBy?'Utilisée':'Gardée';cap=m.usedBy?'par '+m.usedBy:'';}
+  else if(m.status==='gardee'){px='Utilisée';cap=m.usedBy?'par '+m.usedBy:'par nous';}
   else if(m.status==='enligne'&&listed!=null){px=eur(listed);cap='affiché';}
   else if(p){px=eur(p.now);cap='conseillé';}
   if(isPast){
@@ -395,7 +395,7 @@ function card(r){
     if(m.status==='vendue'){px=sv?eur(netOf(sv)):'Vendue';cap=sv?'net perçu':'';}
     else if(m.status==='pretee'){px='Prêtée';cap='';}
     else if(m.status==='nonvendue'){px='Non vendue';cap='vente non aboutie';}
-    else if(m.status==='gardee'){px=m.usedBy?'Utilisée':'Gardée';cap=m.usedBy?'par '+m.usedBy:'';}
+    else if(m.status==='gardee'){px='Utilisée';cap=m.usedBy?'par '+m.usedBy:'par nous';}
     else{px='À renseigner';cap='issue du match';}
   }
   var seg=STATUS.map(function(s){return '<button type="button" class="seg-b" data-act="status" data-id="'+id+'" data-v="'+s[0]+'" aria-pressed="'+(m.status===s[0])+'">'+s[1]+'</button>';}).join('');
@@ -430,13 +430,13 @@ function card(r){
     return '<div class="fx past locked" id="fx-'+id+'" aria-label="Match verrouillé : vendu, informations enregistrées">'+
       '<div class="sum"><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
       '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
-      '<span class="side"><span class="pill s-'+esc(m.status)+'">'+esc(m.status==='gardee'&&m.usedBy?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+      '<span class="side"><span class="pill s-'+esc(m.status)+'">'+esc(m.status==='gardee'?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
       '<span class="lock" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span></div></div>';
   }
   return '<details class="fx'+(isPast?' past':'')+'" id="fx-'+id+'" data-key="'+id+'"'+(openSet.has(m.id)?' open':'')+'>'+
     '<summary><span class="stub"><b>'+st.day+'</b><i>'+esc(st.mon)+'</i></span>'+
     '<span class="main"><span class="opp">'+logoImg(m.opp)+'<span>'+esc(m.opp)+'</span></span><span class="meta">'+esc(whenLabel(m))+' · <span class="j">'+jLabel(J)+'</span></span></span>'+
-    '<span class="side"><span class="pill s-'+esc(m.status)+'">'+(lockN?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span>':'')+esc(m.status==='gardee'&&m.usedBy?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
+    '<span class="side"><span class="pill s-'+esc(m.status)+'">'+(lockN?'<span class="lockic" role="img" aria-label="Verrouillé">'+LOCK_SVG+'</span>':'')+esc(m.status==='gardee'?'Utilisée':(STATUS_LABEL[m.status]||m.status))+'</span><span class="px">'+esc(px)+'</span>'+(cap?'<span class="cap">'+esc(cap)+'</span>':'')+'</span>'+
     '<span class="chev" aria-hidden="true"></span></summary>'+
     '<div class="body"><div class="seg" role="group" aria-label="Statut de la revente pour '+esc(m.opp)+'">'+seg+'</div>'+planHtml+
     (acts&&!lockN?'<div class="acts">'+acts+'</div>':'')+
@@ -819,7 +819,7 @@ function bilanView(){
   if(!ms.length)return '';
   var played=ms.filter(function(m){return daysBetween(today,m.date)<0;}),coming=ms.length-played.length;
   var c={vendue:0,pretee:0,gardee:0,nonvendue:0,autre:0,used:0};
-  played.forEach(function(m){if(m.status==='gardee'&&m.usedBy)c.used++;else if(c[m.status]!==undefined)c[m.status]++;else c.autre++;});
+  played.forEach(function(m){if(m.status==='gardee')c.used++;else if(c[m.status]!==undefined)c[m.status]++;else c.autre++;});
   var sales=ventes.filter(function(v){return seasonOfSale(v)===sea;}),nets=sales.map(netOf);
   var tot=nets.reduce(function(a,b){return a+b;},0),avg=nets.length?tot/nets.length:0,best=nets.length?Math.max.apply(null,nets):0;
   var tried=c.vendue+c.nonvendue,rate=tried?Math.round(c.vendue/tried*100):null;
@@ -834,8 +834,9 @@ function bilanView(){
   var h='<section class="panel" aria-labelledby="h-bil"><h2 id="h-bil">Bilan de la saison '+esc(sea)+'</h2><ul class="tiers bil">'+
     li('Matchs à domicile',ms.length+' ('+played.length+' joués, '+coming+' à venir)')+
     li('Vendus',c.vendue+(rate!==null?' · '+rate+' % des matchs tentés':''))+
-    li('Non vendus / prêtés / gardés',c.nonvendue+' / '+c.pretee+' / '+c.gardee)+
-    (c.used?li('Places utilisées par nous (non vendues)',String(c.used)):'')+
+    li('Non vendus',String(c.nonvendue))+
+    li('Prêtés',String(c.pretee))+
+    li('Utilisés par nous',String(c.used))+
     (c.autre?li('Issue à renseigner',String(c.autre)):'')+
     li('Net moyen par vente',nets.length?eur(avg):'—')+
     li('Meilleure vente (net)',nets.length?eur(best):'—')+
