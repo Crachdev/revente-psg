@@ -35,6 +35,10 @@ async function open(browser, failSnap) {
     const txt = await p.$eval('#h-bil', e => e.parentElement.innerText);
     assert.ok(/3\D847,36/.test(txt) && /1\D923,68/.test(txt), txt);
   });
+  await t('règlements du club en attente : liste et total', async () => {
+    const txt = await p.$eval('#h-pend', e => e.parentElement.innerText);
+    assert.ok(/1\D957,12/.test(txt) && /978,56/.test(txt) && /6 ventes/.test(txt) && /Roma/.test(txt), txt);
+  });
   await p.click('[data-act="view"]'); await p.waitForTimeout(150);
   await t('statistiques : base de prédiction affichée', async () => {
     const txt = await p.$eval('#h-stat', e => e.parentElement.innerText);
