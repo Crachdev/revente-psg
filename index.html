@@ -1109,6 +1109,15 @@ async function seedPastIfMissing(){
   PAST.forEach(function(m,i){b.set(mref().doc(m[0]),{order:i-PAST.length,opp:m[1],date:m[2],time:m[3],weekend:false,comp:m[4]||'',status:m[6]?'gardee':'vendue',usedBy:m[6]||null,paid:null,floor:null,listed:m[5]==null?null:m[5],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
   await b.commit();
 }
+async function seedMissingMatches(){
+  var s=await mref().get(),ids={},keys={};
+  s.docs.forEach(function(d){var x=d.data();ids[d.id]=1;keys[String(x.opp||'').toLowerCase()+'|'+x.date]=1;});
+  var add=SEED.filter(function(m){return !ids[m[0]]&&!keys[String(m[1]).toLowerCase()+'|'+m[2]];});
+  if(!add.length)return;
+  var b=db.batch();
+  add.forEach(function(m){var i=SEED.indexOf(m);b.set(mref().doc(m[0]),{order:i+1,opp:m[1],date:m[2],time:m[3],weekend:m[4],comp:m[5]||'',status:m[6]||'attente',paid:null,floor:null,listed:m[7]==null?null:m[7],openedOn:null,postedBy:null,updatedBy:null,updatedAt:null});});
+  await b.commit();
+}
 async function reload(){
   var a=await mref().orderBy('order').get();
   var c=await cref().get();
@@ -1151,7 +1160,7 @@ function onRemote(){clearTimeout(debounce);debounce=setTimeout(refresh,400);}
 
 async function startApp(){
   state='loading';render();
-  try{await seedIfEmpty();await seedPastIfMissing();await reload();state='ok';render();startSync();}
+  try{await seedIfEmpty();await seedPastIfMissing();try{await seedMissingMatches();}catch(e){}await reload();state='ok';render();startSync();}
   catch(e){
     if(isAuthError(e)){
       state='error';
