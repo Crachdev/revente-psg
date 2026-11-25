@@ -6,8 +6,9 @@ const root = path.resolve(__dirname, '..');
 const results = [];
 async function t(name, fn) { try { await fn(); results.push(['OK ', name]); } catch (e) { results.push(['KO ', name + ' : ' + e.message.split('\n')[0]]); process.exitCode = 1; } }
 
-async function open(browser, failSnap) {
+async function open(browser, failSnap, pre) {
   const p = await browser.newPage({ viewport: { width: 400, height: 900 } });
+  if (pre) await p.addInitScript(x => { window.__pre = x; }, pre);
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   p.on('console', m => { if (m.type() === 'error' && !/integrity|xlsx/i.test(m.text())) errs.push(m.text()); }); // faux xlsx vide : rejete par SRI
   await p.route('**/*', r => {
@@ -38,6 +39,24 @@ async function open(browser, failSnap) {
   await t('bilan : commission payée au club et projection de fin de saison', async () => {
     const txt = await p.$eval('#h-bil', e => e.parentElement.innerText);
     assert.ok(/524,64/.test(txt) && /12 %/.test(txt) && /Projection/i.test(txt), txt);
+  });
+  await t('matchs manquants ajoutés au démarrage, sans doublon ni écrasement', async () => {
+    const pre = {
+      m01: { order: 1, opp: 'Roma', date: '2026-11-25', time: '21:00', weekend: false, comp: 'LDC', status: 'enligne', listed: 777 },
+      zz99: { order: 14, opp: 'Nice', date: '2027-05-16', time: null, weekend: false, comp: 'L1', status: 'attente' }
+    };
+    const q = await open(browser, false, pre);
+    const r = await q.evaluate(() => {
+      const S = window.__store.revente_matches, all = Object.values(S);
+      return { toulouse: all.filter(x => x.opp === 'Toulouse').length, nice: all.filter(x => x.opp === 'Nice').length,
+               roma: all.filter(x => x.opp === 'Roma').length, status: S.m01.status, listed: S.m01.listed, hasM14: !!S.m14 };
+    });
+    await q.close();
+    assert.strictEqual(r.toulouse, 1, 'Toulouse ajouté');
+    assert.strictEqual(r.nice, 1, 'Nice sans doublon');
+    assert.ok(!r.hasM14);
+    assert.strictEqual(r.roma, 1);
+    assert.strictEqual(r.status, 'enligne'); assert.strictEqual(r.listed, 777);
   });
   await t('règlements du club en attente : liste et total', async () => {
     const txt = await p.$eval('#h-pend', e => e.parentElement.innerText);
